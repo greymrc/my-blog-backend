@@ -1,4 +1,4 @@
-package com.grey.myblog.controller;
+package com.grey.myblog.controller.admin;
 
 import cn.hutool.core.util.ObjUtil;
 import com.grey.myblog.annotation.AuthCheck;
@@ -29,8 +29,8 @@ import java.util.Map;
  * @author grey
  */
 @RestController
-@RequestMapping("/api/article")
-public class ArticleController {
+@RequestMapping("/app/article")
+public class ArticleAdminController {
 
     @Resource
     private ArticleService articleService;

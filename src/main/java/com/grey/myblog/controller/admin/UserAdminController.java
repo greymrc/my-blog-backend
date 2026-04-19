@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.*;
  * @author grey
  */
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/admin/user")
+public class UserAdminController {
 
     @Resource
     private UserService userService;
