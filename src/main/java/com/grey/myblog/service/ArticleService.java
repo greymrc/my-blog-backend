@@ -1,8 +1,8 @@
 package com.grey.myblog.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.grey.myblog.model.entity.Article;
-import com.grey.myblog.model.entity.User;
+import com.grey.myblog.model.dataobject.ArticleDO;
+import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.request.ArticleAddRequest;
 import com.grey.myblog.model.request.ArticlePageListRequest;
 import com.grey.myblog.model.request.ArticleUpdateRequest;
@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * @author grey
  */
-public interface ArticleService extends IService<Article> {
+public interface ArticleService extends IService<ArticleDO> {
 
     /**
      * 分页查询文章列表 (文章只返回摘要，不返回完整内容)
@@ -55,7 +55,7 @@ public interface ArticleService extends IService<Article> {
      * @param loginUser 当前登录用户，作为文章作者
      * @return 创建成功的文章ID
      */
-    Long addArticle(ArticleAddRequest request, User loginUser);
+    Long addArticle(ArticleAddRequest request, UserDO loginUser);
 
     /**
      * 更新文章
@@ -65,7 +65,7 @@ public interface ArticleService extends IService<Article> {
      * @param loginUser 当前登录用户，用于权限校验
      * @return 是否更新成功
      */
-    Boolean updateArticle(ArticleUpdateRequest request, User loginUser);
+    Boolean updateArticle(ArticleUpdateRequest request, UserDO loginUser);
 
     /**
      * 删除文章
@@ -75,7 +75,7 @@ public interface ArticleService extends IService<Article> {
      * @param loginUser 当前登录用户，用于权限校验
      * @return 是否删除成功
      */
-    Boolean deleteArticle(Long id, User loginUser);
+    Boolean deleteArticle(Long id, UserDO loginUser);
 
     /**
      * 增加阅读量

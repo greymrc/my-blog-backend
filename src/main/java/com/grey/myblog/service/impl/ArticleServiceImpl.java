@@ -6,11 +6,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;import com.grey.myblog.exception.BusinessException;
 import com.grey.myblog.exception.ThrowUtil;
-import com.grey.myblog.model.entity.Article;
-import com.grey.myblog.model.entity.ArticleTag;
-import com.grey.myblog.model.entity.Category;
-import com.grey.myblog.model.entity.Tag;
-import com.grey.myblog.model.entity.User;
+import com.grey.myblog.model.dataobject.ArticleDO;
+import com.grey.myblog.model.dataobject.ArticleTagDO;
+import com.grey.myblog.model.dataobject.CategoryDO;
+import com.grey.myblog.model.dataobject.TagDO;
+import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.ArticleAddRequest;
 import com.grey.myblog.model.request.ArticlePageListRequest;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
+public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticleDO>
         implements ArticleService {
 
     @Resource
@@ -74,8 +74,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
         try {
             // 使用自定义 SQL 执行分页查询
-            Page<Article> articlePage = new Page<>(pageNum, pageSize);
-            Page<Article> resultPage = baseMapper.selectArticlePage(articlePage, request);
+            Page<ArticleDO> articlePage = new Page<>(pageNum, pageSize);
+            Page<ArticleDO> resultPage = baseMapper.selectArticlePage(articlePage, request);
             
             // 转换为VO对象
             List<ArticleVO> articleVOList = resultPage.getRecords().stream()
@@ -103,7 +103,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public ArticleVO getArticleById(Long id) {
         ThrowUtil.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR, "文章ID无效");
 
-        Article article = this.getById(id);
+        ArticleDO article = this.getById(id);
         if (article == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "文章不存在");
         }
@@ -124,10 +124,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public Map<String, Map<String, List<ArticleArchiveVO>>> getArticleArchive(Integer year, Integer month) {
         // 构建查询条件：只查询公开文章，只查询必要字段
-        QueryWrapper<Article> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<ArticleDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
-                .select(Article::getId, Article::getTitle, Article::getCreateTime, Article::getCategoryId)
-                .eq(Article::getStatus, 1);
+                .select(ArticleDO::getId, ArticleDO::getTitle, ArticleDO::getCreateTime, ArticleDO::getCategoryId)
+                .eq(ArticleDO::getStatus, 1);
         
         // 按年份筛选（如果指定）
         if (year != null) {
@@ -139,10 +139,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         }
         
         // 按创建时间倒序排序
-        queryWrapper.lambda().orderByDesc(Article::getCreateTime);
+        queryWrapper.lambda().orderByDesc(ArticleDO::getCreateTime);
 
         // 查询文章列表（只包含必要字段）
-        List<Article> articles = this.list(queryWrapper);
+        List<ArticleDO> articles = this.list(queryWrapper);
 
         // 转换为轻量级归档VO，并保存articleId到categoryId的映射
         Map<Long, Long> articleCategoryMap = new HashMap<>();
@@ -189,12 +189,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long addArticle(ArticleAddRequest request, User loginUser) {
+    public Long addArticle(ArticleAddRequest request, UserDO loginUser) {
         // 校验请求参数（标题、内容等）
         validateArticleRequest(request);
         
         // 创建文章实体，复制请求参数并设置默认值
-        Article article = new Article();
+        ArticleDO article = new ArticleDO();
         BeanUtils.copyProperties(request, article);
         article.setAuthorId(loginUser.getId());
         article.setViewCount(0);
@@ -221,7 +221,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean updateArticle(ArticleUpdateRequest request, User loginUser) {
+    public Boolean updateArticle(ArticleUpdateRequest request, UserDO loginUser) {
         if (request == null || request.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文章ID不能为空");
         }
@@ -230,7 +230,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         validateArticleRequest(request);
         
         // 查询原文章，检查是否存在
-        Article existingArticle = this.getById(request.getId());
+        ArticleDO existingArticle = this.getById(request.getId());
         if (existingArticle == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "文章不存在");
         }
@@ -241,7 +241,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         }
         
         // 更新文章内容
-        Article article = new Article();
+        ArticleDO article = new ArticleDO();
         BeanUtils.copyProperties(request, article);
         article.setUpdateTime(new Date());
         
@@ -264,13 +264,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
      * 校验参数和权限，执行逻辑删除（MyBatis-Plus会自动处理isDelete标记）
      */
     @Override
-    public Boolean deleteArticle(Long id, User loginUser) {
+    public Boolean deleteArticle(Long id, UserDO loginUser) {
         if (id == null || id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文章ID无效");
         }
         
         // 查询文章，检查是否存在
-        Article article = this.getById(id);
+        ArticleDO article = this.getById(id);
         if (article == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "文章不存在");
         }
@@ -294,7 +294,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             return false;
         }
         
-        Article article = this.getById(id);
+        ArticleDO article = this.getById(id);
         if (article == null) {
             return false;
         }
@@ -308,7 +308,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
      * 将文章实体转换为VO对象
      * 复制基本属性，并计算文章字数统计
      */
-    private ArticleVO convertToArticleVO(Article article) {
+    private ArticleVO convertToArticleVO(ArticleDO article) {
         if (article == null) {
             return null;
         }
@@ -353,7 +353,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         // 批量查询分类信息，构建ID到VO的映射
         Map<Long, CategoryVO> categoryMap = new HashMap<>();
         if (!categoryIds.isEmpty()) {
-            List<Category> categories = categoryService.listByIds(categoryIds);
+            List<CategoryDO> categories = categoryService.listByIds(categoryIds);
             categoryMap = categories.stream()
                     .map(this::convertToCategoryVO)
                     .collect(Collectors.toMap(CategoryVO::getId, vo -> vo));
@@ -362,7 +362,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         // 批量查询作者信息，构建ID到VO的映射
         Map<Long, ArticleVO.AuthorVO> authorMap = new HashMap<>();
         if (!authorIds.isEmpty()) {
-            List<User> users = userService.listByIds(authorIds);
+            List<UserDO> users = userService.listByIds(authorIds);
             authorMap = users.stream()
                     .map(this::convertToAuthorVO)
                     .collect(Collectors.toMap(ArticleVO.AuthorVO::getId, vo -> vo));
@@ -372,25 +372,25 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Map<Long, List<TagVO>> articleTagMap = new HashMap<>();
         if (!articleIds.isEmpty()) {
             // 查询文章-标签关联表
-            List<ArticleTag> articleTags = articleTagService.list(
-                    new LambdaQueryWrapper<ArticleTag>()
-                            .in(ArticleTag::getArticleId, articleIds)
+            List<ArticleTagDO> articleTags = articleTagService.list(
+                    new LambdaQueryWrapper<ArticleTagDO>()
+                            .in(ArticleTagDO::getArticleId, articleIds)
             );
             
             // 提取标签ID集合
             Set<Long> tagIds = articleTags.stream()
-                    .map(ArticleTag::getTagId)
+                    .map(ArticleTagDO::getTagId)
                     .collect(Collectors.toSet());
             
             // 批量查询标签信息
             if (!tagIds.isEmpty()) {
-                List<Tag> tags = tagService.listByIds(tagIds);
+                List<TagDO> tags = tagService.listByIds(tagIds);
                 Map<Long, TagVO> tagMap = tags.stream()
                         .map(this::convertToTagVO)
                         .collect(Collectors.toMap(TagVO::getId, vo -> vo));
                 
                 // 构建文章ID到标签列表的映射
-                for (ArticleTag articleTag : articleTags) {
+                for (ArticleTagDO articleTag : articleTags) {
                     TagVO tagVO = tagMap.get(articleTag.getTagId());
                     if (tagVO != null) {
                         articleTagMap.computeIfAbsent(articleTag.getArticleId(), k -> new ArrayList<>())
@@ -423,9 +423,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
      * 为文章创建与多个标签的关联记录
      */
     private void saveArticleTags(Long articleId, List<Long> tagIds) {
-        List<ArticleTag> articleTags = tagIds.stream()
+        List<ArticleTagDO> articleTags = tagIds.stream()
                 .map(tagId -> {
-                    ArticleTag articleTag = new ArticleTag();
+                    ArticleTagDO articleTag = new ArticleTagDO();
                     articleTag.setArticleId(articleId);
                     articleTag.setTagId(tagId);
                     articleTag.setCreateTime(new Date());
@@ -443,8 +443,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
      */
     private void deleteArticleTags(Long articleId) {
         articleTagService.remove(
-                new LambdaQueryWrapper<ArticleTag>()
-                        .eq(ArticleTag::getArticleId, articleId)
+                new LambdaQueryWrapper<ArticleTagDO>()
+                        .eq(ArticleTagDO::getArticleId, articleId)
         );
     }
 
@@ -495,7 +495,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     /**
      * 转换为CategoryVO
      */
-    private CategoryVO convertToCategoryVO(Category category) {
+    private CategoryVO convertToCategoryVO(CategoryDO category) {
         if (category == null) {
             return null;
         }
@@ -507,7 +507,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     /**
      * 转换为TagVO
      */
-    private TagVO convertToTagVO(Tag tag) {
+    private TagVO convertToTagVO(TagDO tag) {
         if (tag == null) {
             return null;
         }
@@ -519,7 +519,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     /**
      * 转换为AuthorVO
      */
-    private ArticleVO.AuthorVO convertToAuthorVO(User user) {
+    private ArticleVO.AuthorVO convertToAuthorVO(UserDO user) {
         if (user == null) {
             return null;
         }
@@ -535,7 +535,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
      * 只复制必要字段：id、title、createTime
      *
      */
-    private ArticleArchiveVO convertToArticleArchiveVO(Article article) {
+    private ArticleArchiveVO convertToArticleArchiveVO(ArticleDO article) {
         if (article == null) {
             return null;
         }
@@ -564,7 +564,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         // 批量查询分类信息
         Map<Long, CategoryVO> categoryMap = new HashMap<>();
         if (!categoryIds.isEmpty()) {
-            List<Category> categories = categoryService.listByIds(categoryIds);
+            List<CategoryDO> categories = categoryService.listByIds(categoryIds);
             categoryMap = categories.stream()
                     .map(this::convertToCategoryVO)
                     .collect(Collectors.toMap(CategoryVO::getId, vo -> vo));
@@ -580,25 +580,25 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Map<Long, List<TagVO>> articleTagMap = new HashMap<>();
         if (!articleIds.isEmpty()) {
             // 查询文章-标签关联表
-            List<ArticleTag> articleTags = articleTagService.list(
-                    new LambdaQueryWrapper<ArticleTag>()
-                            .in(ArticleTag::getArticleId, articleIds)
+            List<ArticleTagDO> articleTags = articleTagService.list(
+                    new LambdaQueryWrapper<ArticleTagDO>()
+                            .in(ArticleTagDO::getArticleId, articleIds)
             );
             
             // 提取标签ID集合
             Set<Long> tagIds = articleTags.stream()
-                    .map(ArticleTag::getTagId)
+                    .map(ArticleTagDO::getTagId)
                     .collect(Collectors.toSet());
             
             // 批量查询标签信息
             if (!tagIds.isEmpty()) {
-                List<Tag> tags = tagService.listByIds(tagIds);
+                List<TagDO> tags = tagService.listByIds(tagIds);
                 Map<Long, TagVO> tagMap = tags.stream()
                         .map(this::convertToTagVO)
                         .collect(Collectors.toMap(TagVO::getId, vo -> vo));
                 
                 // 构建文章ID到标签列表的映射
-                for (ArticleTag articleTag : articleTags) {
+                for (ArticleTagDO articleTag : articleTags) {
                     TagVO tagVO = tagMap.get(articleTag.getTagId());
                     if (tagVO != null) {
                         articleTagMap.computeIfAbsent(articleTag.getArticleId(), k -> new ArrayList<>())

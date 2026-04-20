@@ -1,17 +1,16 @@
-package com.grey.myblog.model.vo;
+package com.grey.myblog.model.request;
 
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * 标签视图对象
+ * 标签更新请求
  *
  * @author grey
  */
 @Data
-public class TagVO implements Serializable {
+public class TagUpdateRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -28,14 +27,4 @@ public class TagVO implements Serializable {
      * 标签颜色
      */
     private String color;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
 }

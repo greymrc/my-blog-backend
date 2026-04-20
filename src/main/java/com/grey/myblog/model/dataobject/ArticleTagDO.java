@@ -1,4 +1,4 @@
-package com.grey.myblog.model.entity;
+package com.grey.myblog.model.dataobject;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @TableName(value ="article_tag")
 @Data
-public class ArticleTag implements Serializable {
+public class ArticleTagDO implements Serializable {
     /**
      * 主键ID
      */

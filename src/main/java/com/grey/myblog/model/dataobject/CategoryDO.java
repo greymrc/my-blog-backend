@@ -1,4 +1,4 @@
-package com.grey.myblog.model.entity;
+package com.grey.myblog.model.dataobject;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @TableName(value ="category")
 @Data
-public class Category implements Serializable {
+public class CategoryDO implements Serializable {
     /**
      * 主键ID
      */

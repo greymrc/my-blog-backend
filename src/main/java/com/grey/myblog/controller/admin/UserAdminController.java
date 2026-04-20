@@ -5,7 +5,7 @@ import cn.hutool.core.util.ObjUtil;
 import com.grey.myblog.common.Result;
 import com.grey.myblog.exception.BusinessException;
 import com.grey.myblog.exception.ThrowUtil;
-import com.grey.myblog.model.entity.User;
+import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.UserLoginRequest;
 import com.grey.myblog.model.request.UserRegisterRequest;
@@ -71,7 +71,7 @@ public class UserAdminController {
             return Result.fail(ErrorCode.PARAMS_ERROR);
         }
         //获取当前登录用户
-        User loginUser = userService.getLoginUser(request);
+        UserDO loginUser = userService.getLoginUser(request);
         ThrowUtil.throwIf(ObjUtil.isEmpty(loginUser),ErrorCode.NOT_LOGIN_ERROR,"当前未登录");
 
 
@@ -89,7 +89,7 @@ public class UserAdminController {
         if (request==null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser(request);
+        UserDO loginUser = userService.getLoginUser(request);
         return Result.success(userService.getLoginUserVo(loginUser));
     }
 

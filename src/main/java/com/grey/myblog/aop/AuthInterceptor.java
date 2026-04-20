@@ -2,7 +2,7 @@ package com.grey.myblog.aop;
 
 import com.grey.myblog.annotation.AuthCheck;
 import com.grey.myblog.exception.BusinessException;
-import com.grey.myblog.model.entity.User;
+import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.enums.UserRoleEnum;
 import com.grey.myblog.service.UserService;
@@ -52,7 +52,7 @@ public class AuthInterceptor {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request =((ServletRequestAttributes)requestAttributes).getRequest();
         //这个获取方法里如果当前角色为空会抛异常的，所以能出来必定拿到了
-        User loginUser = userService.getLoginUser(request);
+        UserDO loginUser = userService.getLoginUser(request);
         //对比当前用户的角色和权限需要的角色，校验权限是否足够
         UserRoleEnum userRoleEnum = UserRoleEnum.getRoleEnumByValue(loginUser.getRole());
         if (userRoleEnum==null){

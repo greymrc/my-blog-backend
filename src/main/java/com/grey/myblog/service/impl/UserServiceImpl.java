@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.grey.myblog.constant.UserConstant;
 import com.grey.myblog.exception.BusinessException;
-import com.grey.myblog.model.entity.User;
+import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.enums.UserRoleEnum;
 import com.grey.myblog.model.request.UserAddRequest;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 * @createDate 2026-01-14 13:11:18
 */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User>
+public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
     implements UserService{
 
 
@@ -62,8 +62,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次密码不一致");
         }
         //校验账号唯一   （查表）  这里因为account数据库唯一索引，所以没有并发异常，不然这里需要锁来限制同时插入两条一样的。
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(User::getAccount, userAccount);
+        QueryWrapper<UserDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserDO::getAccount, userAccount);
         long count = this.count(queryWrapper);
         if (count > 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户已存在");
@@ -71,7 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //密码加密
         String encryptPassword = this.getEncryptPassword(userPassword);
         //组装用户注册数据 插入数据库
-        User registerUser = new User();
+        UserDO registerUser = new UserDO();
         registerUser.setAccount(userAccount);
         registerUser.setPassword(encryptPassword);
         registerUser.setRole(UserRoleEnum.COMMON_USER.getValue());
@@ -122,10 +122,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         userPassword = getEncryptPassword(userPassword);
 
         //查表对比
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(User::getAccount, userAccount);
-        queryWrapper.lambda().eq(User::getPassword, userPassword);
-        User loginUser = this.getOne(queryWrapper);
+        QueryWrapper<UserDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserDO::getAccount, userAccount);
+        queryWrapper.lambda().eq(UserDO::getPassword, userPassword);
+        UserDO loginUser = this.getOne(queryWrapper);
         //为空抛异常
         if (loginUser == null) {
             log.error("用户登录失败，账号或者密码错误");
@@ -140,7 +140,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public LoginUserVO getLoginUserVo(User user) {
+    public LoginUserVO getLoginUserVo(UserDO user) {
         //用户数据脱敏
         LoginUserVO loginUserVo = new LoginUserVO();
         BeanUtils.copyProperties(user, loginUserVo);
@@ -148,7 +148,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User getLoginUser(HttpServletRequest request) {
+    public UserDO getLoginUser(HttpServletRequest request) {
         /**
          * 1. 从 session 获取登录用户对象
          * 2. 检查是否为 null
@@ -180,7 +180,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         
         // 查询用户信息，拿到最新的用户对象，防止缓存跟数据不一致
-        User latestUser = this.getById(loginUser.getId());
+        UserDO latestUser = this.getById(loginUser.getId());
         
         // 判断是否为空（可能被管理员删除或封禁）
         if (latestUser == null) {
@@ -226,14 +226,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //校验用户账号密码合规
         checkUserAccountPassword(userAccount, userPassword);
         //校验账号唯一   （查表）
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(User::getAccount, userAccount);
+        QueryWrapper<UserDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserDO::getAccount, userAccount);
         long count = this.count(queryWrapper);
         if (count > 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户已存在");
         }
         //转换为User类
-        User user = new User();
+        UserDO user = new UserDO();
         BeanUtils.copyProperties(userAddRequest, user);
         user.setPassword(getEncryptPassword(userPassword));
         if (StrUtil.isBlank(user.getRole())){
@@ -259,7 +259,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public boolean updateUser(UserUpdateRequest userUpdateRequest, User loginUser) {
+    public boolean updateUser(UserUpdateRequest userUpdateRequest, UserDO loginUser) {
         /**
          * 入参：UserUpdateRequest
          * 1.校验参数
@@ -290,7 +290,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String userMobile = userUpdateRequest.getMobile();
         ValidationUtils.validateMobile(userMobile);
         //转换对象
-        User user = new User();
+        UserDO user = new UserDO();
         BeanUtils.copyProperties(userUpdateRequest, user);
         //更新
         boolean result = this.updateById(user);
@@ -332,9 +332,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Page<UserVO> userVoPage = null;
         try {
             //对查询参数进行组装
-            QueryWrapper<User> queryWrapper = getQueryWrapper(userPageListRequest);
+            QueryWrapper<UserDO> queryWrapper = getQueryWrapper(userPageListRequest);
             //进行分页查询
-            Page<User> userPage = this.page(new Page<>(pageNum, pageSize), queryWrapper);
+            Page<UserDO> userPage = this.page(new Page<>(pageNum, pageSize), queryWrapper);
             //对分页查询结果进行数据脱敏
             List<UserVO> userVOList = userPage.getRecords().stream().map(this::getUserVo).collect(Collectors.toList());
             //返回脱敏后的分页查询结果
@@ -355,7 +355,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return
      */
     @Override
-    public UserVO getUserVo(User user) {
+    public UserVO getUserVo(UserDO user) {
         //非空校验
         if (user==null){
             return new UserVO();
@@ -366,20 +366,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public List<User> getUserNameByIds(List<Long> userIds) {
+    public List<UserDO> getUserNameByIds(List<Long> userIds) {
         if (userIds == null) {
             return new ArrayList<>();
         }
         //批量查询
         return userMapper.selectList(
-                new LambdaQueryWrapper<User>()
-                        .select(User::getId, User::getNickname) // 只查 id 和 username
-                        .in(User::getId, userIds)
+                new LambdaQueryWrapper<UserDO>()
+                        .select(UserDO::getId, UserDO::getNickname) // 只查 id 和 username
+                        .in(UserDO::getId, userIds)
         );
     }
 
     @Override
-    public Boolean isAdmin(User loginUser) {
+    public Boolean isAdmin(UserDO loginUser) {
         String userRole = loginUser.getRole();
         UserRoleEnum userRoleEnum = UserRoleEnum.getRoleEnumByValue(userRole);
         return userRoleEnum != null && UserRoleEnum.ADMIN_USER.equals(userRoleEnum);
@@ -390,11 +390,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @param userPageListRequest
      * @return
      */
-    public QueryWrapper<User> getQueryWrapper(UserPageListRequest userPageListRequest) {
+    public QueryWrapper<UserDO> getQueryWrapper(UserPageListRequest userPageListRequest) {
         if (userPageListRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<UserDO> queryWrapper = new QueryWrapper<>();
         Long id = userPageListRequest.getId();
         String userAccount = userPageListRequest.getAccount();
         String userNickname = userPageListRequest.getNickname();
@@ -404,12 +404,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String sortField = userPageListRequest.getSortField();
         String sortOrder = userPageListRequest.getSortOrder();
 
-        queryWrapper.lambda().eq(ObjectUtil.isNotNull(id),User::getId,id);
-        queryWrapper.lambda().eq(StrUtil.isNotBlank(userAccount),User::getAccount,userAccount);
-        queryWrapper.lambda().eq(StrUtil.isNotBlank(userEmail),User::getEmail,userEmail);
-        queryWrapper.lambda().eq(StrUtil.isNotBlank(userRole),User::getRole,userRole);
-        queryWrapper.lambda().like(StrUtil.isNotBlank(userNickname),User::getNickname,userNickname);
-        queryWrapper.lambda().like(StrUtil.isNotBlank(userProfile),User::getProfile,userProfile);
+        queryWrapper.lambda().eq(ObjectUtil.isNotNull(id),UserDO::getId,id);
+        queryWrapper.lambda().eq(StrUtil.isNotBlank(userAccount),UserDO::getAccount,userAccount);
+        queryWrapper.lambda().eq(StrUtil.isNotBlank(userEmail),UserDO::getEmail,userEmail);
+        queryWrapper.lambda().eq(StrUtil.isNotBlank(userRole),UserDO::getRole,userRole);
+        queryWrapper.lambda().like(StrUtil.isNotBlank(userNickname),UserDO::getNickname,userNickname);
+        queryWrapper.lambda().like(StrUtil.isNotBlank(userProfile),UserDO::getProfile,userProfile);
         queryWrapper.orderBy(StrUtil.isNotBlank(sortField), "descend".equals(sortOrder),sortField);
         return queryWrapper;
     }

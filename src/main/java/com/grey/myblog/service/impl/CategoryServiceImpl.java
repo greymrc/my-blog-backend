@@ -1,7 +1,7 @@
 package com.grey.myblog.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.grey.myblog.model.entity.Category;
+import com.grey.myblog.model.dataobject.CategoryDO;
 import com.grey.myblog.service.CategoryService;
 import com.grey.myblog.mapper.CategoryMapper;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 * @createDate 2026-01-15 11:49:53
 */
 @Service
-public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
+public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryDO>
     implements CategoryService{
 
 }

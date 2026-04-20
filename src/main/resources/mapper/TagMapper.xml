@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.grey.myblog.mapper.TagMapper">
 
-    <resultMap id="BaseResultMap" type="com.grey.myblog.model.entity.Tag">
+    <resultMap id="BaseResultMap" type="com.grey.myblog.model.dataobject.TagDO">
             <id property="id" column="id" />
             <result property="name" column="name" />
             <result property="color" column="color" />

@@ -5,7 +5,7 @@ import com.grey.myblog.annotation.AuthCheck;
 import com.grey.myblog.common.Result;
 import com.grey.myblog.exception.ThrowUtil;
 import com.grey.myblog.model.DeleteRequest;
-import com.grey.myblog.model.entity.User;
+import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.ArticleAddRequest;
 import com.grey.myblog.model.request.ArticlePageListRequest;
@@ -89,7 +89,7 @@ public class ArticleAdminController {
         if (ObjectUtils.isEmpty(request)) {
             return Result.fail(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
-        User loginUser = userService.getLoginUser(httpRequest);
+        UserDO loginUser = userService.getLoginUser(httpRequest);
         ThrowUtil.throwIf(ObjUtil.isEmpty(loginUser), ErrorCode.NOT_LOGIN_ERROR, "当前未登录");
         
         Long articleId = articleService.addArticle(request, loginUser);
@@ -106,7 +106,7 @@ public class ArticleAdminController {
         if (ObjectUtils.isEmpty(request)) {
             return Result.fail(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
-        User loginUser = userService.getLoginUser(httpRequest);
+        UserDO loginUser = userService.getLoginUser(httpRequest);
         ThrowUtil.throwIf(ObjUtil.isEmpty(loginUser), ErrorCode.NOT_LOGIN_ERROR, "当前未登录");
         
         Boolean result = articleService.updateArticle(request, loginUser);
@@ -123,7 +123,7 @@ public class ArticleAdminController {
         if (ObjectUtils.isEmpty(deleteRequest)) {
             return Result.fail(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
-        User loginUser = userService.getLoginUser(httpRequest);
+        UserDO loginUser = userService.getLoginUser(httpRequest);
         ThrowUtil.throwIf(ObjUtil.isEmpty(loginUser), ErrorCode.NOT_LOGIN_ERROR, "当前未登录");
         
         Boolean result = articleService.deleteArticle(deleteRequest.getId(), loginUser);

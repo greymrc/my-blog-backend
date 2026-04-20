@@ -1,7 +1,7 @@
 package com.grey.myblog.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.grey.myblog.model.entity.ArticleTag;
+import com.grey.myblog.model.dataobject.ArticleTagDO;
 import com.grey.myblog.service.ArticleTagService;
 import com.grey.myblog.mapper.ArticleTagMapper;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 * @createDate 2026-01-15 11:49:42
 */
 @Service
-public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, ArticleTag>
+public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, ArticleTagDO>
     implements ArticleTagService{
 
 }
