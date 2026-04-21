@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.grey.myblog.dao.UserDAO;
 import com.grey.myblog.constant.UserConstant;
 import com.grey.myblog.exception.BusinessException;
 import com.grey.myblog.model.dataobject.UserDO;
@@ -14,10 +15,9 @@ import com.grey.myblog.model.enums.UserRoleEnum;
 import com.grey.myblog.model.request.UserAddRequest;
 import com.grey.myblog.model.request.UserPageListRequest;
 import com.grey.myblog.model.request.UserUpdateRequest;
-import com.grey.myblog.model.vo.LoginUserVO;
-import com.grey.myblog.model.vo.UserVO;
+import com.grey.myblog.model.response.LoginUserResponse;
+import com.grey.myblog.model.response.UserResponse;
 import com.grey.myblog.service.UserService;
-import com.grey.myblog.mapper.UserMapper;
 import com.grey.myblog.utils.ValidationUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,12 +35,12 @@ import java.util.stream.Collectors;
 * @createDate 2026-01-14 13:11:18
 */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
+public class UserServiceImpl extends ServiceImpl<UserDAO, UserDO>
     implements UserService{
 
 
     @Resource
-    private UserMapper userMapper;
+    private UserDAO userDAO;
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -94,7 +94,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
     }
 
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public LoginUserResponse userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         /**
          * 1. 参数校验：
          *    1. 非空，长度
@@ -132,7 +132,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户名或密码错误");
         }
         //用户数据脱敏
-        LoginUserVO loginUserVo = getLoginUserVo(loginUser);
+        LoginUserResponse loginUserVo = getLoginUserVo(loginUser);
         //用户登录态保存
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATUS, loginUserVo);
         //返回用户脱敏信息
@@ -140,9 +140,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
     }
 
     @Override
-    public LoginUserVO getLoginUserVo(UserDO user) {
+    public LoginUserResponse getLoginUserVo(UserDO user) {
         //用户数据脱敏
-        LoginUserVO loginUserVo = new LoginUserVO();
+        LoginUserResponse loginUserVo = new LoginUserResponse();
         BeanUtils.copyProperties(user, loginUserVo);
         return loginUserVo;
     }
@@ -167,12 +167,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
         }
         
         // 检查类型是否正确，防止类型转换异常
-        if (!(userObj instanceof LoginUserVO)) {
+        if (!(userObj instanceof LoginUserResponse)) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录状态异常，请重新登录");
         }
         
         // 安全地进行类型转换
-        LoginUserVO loginUser = (LoginUserVO) userObj;
+        LoginUserResponse loginUser = (LoginUserResponse) userObj;
         
         // 检查关键字段是否完整
         if (loginUser.getId() == null) {
@@ -308,7 +308,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
      * @return
      */
     @Override
-    public Page<UserVO> userPageList(UserPageListRequest userPageListRequest) {
+    public Page<UserResponse> userPageList(UserPageListRequest userPageListRequest) {
         /**
          * 入参： UserPageListRequest
          * 1. 参数校验
@@ -329,14 +329,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
         if (pageSize < 1) {
             pageSize = 5;
         }
-        Page<UserVO> userVoPage = null;
+        Page<UserResponse> userVoPage = null;
         try {
             //对查询参数进行组装
             QueryWrapper<UserDO> queryWrapper = getQueryWrapper(userPageListRequest);
             //进行分页查询
             Page<UserDO> userPage = this.page(new Page<>(pageNum, pageSize), queryWrapper);
             //对分页查询结果进行数据脱敏
-            List<UserVO> userVOList = userPage.getRecords().stream().map(this::getUserVo).collect(Collectors.toList());
+            List<UserResponse> userVOList = userPage.getRecords().stream().map(this::getUserVo).collect(Collectors.toList());
             //返回脱敏后的分页查询结果
             userVoPage = new Page<>(pageNum,pageSize,userPage.getTotal());
             //保存脱敏后的分页数据
@@ -355,12 +355,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
      * @return
      */
     @Override
-    public UserVO getUserVo(UserDO user) {
+    public UserResponse getUserVo(UserDO user) {
         //非空校验
         if (user==null){
-            return new UserVO();
+            return new UserResponse();
         }
-        UserVO userVo = new UserVO();
+        UserResponse userVo = new UserResponse();
         BeanUtils.copyProperties(user,userVo);
         return userVo;
     }
@@ -371,7 +371,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
             return new ArrayList<>();
         }
         //批量查询
-        return userMapper.selectList(
+        return userDAO.selectList(
                 new LambdaQueryWrapper<UserDO>()
                         .select(UserDO::getId, UserDO::getNickname) // 只查 id 和 username
                         .in(UserDO::getId, userIds)
@@ -438,7 +438,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
     }
 
 }
-
 
 
 

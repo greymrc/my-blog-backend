@@ -1,4 +1,4 @@
-package com.grey.myblog.model.vo;
+package com.grey.myblog.model.response;
 
 import lombok.Data;
 
@@ -7,12 +7,12 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 文章视图对象
+ * 文章响应对象
  *
  * @author grey
  */
 @Data
-public class ArticleVO implements Serializable {
+public class ArticleResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -78,17 +78,17 @@ public class ArticleVO implements Serializable {
     /**
      * 分类信息
      */
-    private CategoryVO category;
+    private CategoryResponse category;
 
     /**
      * 作者信息（简化版：id、nickname、avatar）
      */
-    private AuthorVO author;
+    private AuthorResponse author;
 
     /**
      * 标签列表
      */
-    private List<TagVO> tags;
+    private List<TagResponse> tags;
 
     /**
      * 字数统计
@@ -99,7 +99,7 @@ public class ArticleVO implements Serializable {
      * 作者简化信息
      */
     @Data
-    public static class AuthorVO implements Serializable {
+    public static class AuthorResponse implements Serializable {
         private static final long serialVersionUID = 1L;
 
         /**

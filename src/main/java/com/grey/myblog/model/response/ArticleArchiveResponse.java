@@ -1,4 +1,4 @@
-package com.grey.myblog.model.vo;
+package com.grey.myblog.model.response;
 
 import lombok.Data;
 
@@ -7,13 +7,13 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 文章归档视图对象（轻量级）
+ * 文章归档响应对象（轻量级）
  * 用于归档页面展示，只包含必要字段
  *
  * @author grey
  */
 @Data
-public class ArticleArchiveVO implements Serializable {
+public class ArticleArchiveResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -34,10 +34,10 @@ public class ArticleArchiveVO implements Serializable {
     /**
      * 分类信息
      */
-    private CategoryVO category;
+    private CategoryResponse category;
 
     /**
      * 标签列表（只包含标签名称）
      */
-    private List<TagVO> tags;
+    private List<TagResponse> tags;
 }

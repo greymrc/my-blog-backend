@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.grey.myblog.model.request.UserAddRequest;
 import com.grey.myblog.model.request.UserPageListRequest;
 import com.grey.myblog.model.request.UserUpdateRequest;
-import com.grey.myblog.model.vo.LoginUserVO;
-import com.grey.myblog.model.vo.UserVO;
+import com.grey.myblog.model.response.LoginUserResponse;
+import com.grey.myblog.model.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public interface UserService extends IService<UserDO> {
      * @param request
      * @return
      */
-    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+    LoginUserResponse userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
 
     /**
@@ -51,7 +51,7 @@ public interface UserService extends IService<UserDO> {
      * @param user
      * @return
      */
-    LoginUserVO getLoginUserVo(UserDO user);
+    LoginUserResponse getLoginUserVo(UserDO user);
 
     /**
      * 获取当前登录用户
@@ -90,14 +90,14 @@ public interface UserService extends IService<UserDO> {
      * @param userPageListRequest
      * @return
      */
-    Page<UserVO> userPageList(UserPageListRequest userPageListRequest);
+    Page<UserResponse> userPageList(UserPageListRequest userPageListRequest);
 
     /**
      * 用户User脱敏为UserVo
      * @param user
      * @return
      */
-    UserVO getUserVo(UserDO user);
+    UserResponse getUserVo(UserDO user);
 
 
     /**

@@ -1,4 +1,4 @@
-package com.grey.myblog.model.vo;
+package com.grey.myblog.model.response;
 
 import lombok.Data;
 
@@ -6,12 +6,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户登录后的用户脱敏数据
+ * 用户响应对象
  *
- * @TableName user
+ * @author grey
  */
 @Data
-public class LoginUserVO implements Serializable {
+public class UserResponse implements Serializable {
     /**
      * 主键ID
      */
@@ -61,7 +61,6 @@ public class LoginUserVO implements Serializable {
      * 更新时间
      */
     private Date updateTime;
-
 
     private static final long serialVersionUID = 1L;
 }

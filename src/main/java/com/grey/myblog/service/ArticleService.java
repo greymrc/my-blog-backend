@@ -6,8 +6,8 @@ import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.request.ArticleAddRequest;
 import com.grey.myblog.model.request.ArticlePageListRequest;
 import com.grey.myblog.model.request.ArticleUpdateRequest;
-import com.grey.myblog.model.vo.ArticleVO;
-import com.grey.myblog.model.vo.ArticleArchiveVO;
+import com.grey.myblog.model.response.ArticleResponse;
+import com.grey.myblog.model.response.ArticleArchiveResponse;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public interface ArticleService extends IService<ArticleDO> {
      * @param request 分页查询请求
      * @return 分页文章列表
      */
-    Page<ArticleVO> listArticles(ArticlePageListRequest request);
+    Page<ArticleResponse> listArticles(ArticlePageListRequest request);
 
     /**
      * 获取文章详情
@@ -35,7 +35,7 @@ public interface ArticleService extends IService<ArticleDO> {
      * @param id 文章ID
      * @return 文章详情VO，包含完整内容和关联信息
      */
-    ArticleVO getArticleById(Long id);
+    ArticleResponse getArticleById(Long id);
 
     /**
      * 获取文章归档列表（轻量级）
@@ -45,7 +45,7 @@ public interface ArticleService extends IService<ArticleDO> {
      * @param month 月份（可选），筛选指定月份的文章
      * @return 按年月分组的文章归档列表，格式：Map<年份, Map<月份, List<文章归档VO>>>
      */
-    Map<String, Map<String, List<ArticleArchiveVO>>> getArticleArchive(Integer year, Integer month);
+    Map<String, Map<String, List<ArticleArchiveResponse>>> getArticleArchive(Integer year, Integer month);
 
     /**
      * 创建文章

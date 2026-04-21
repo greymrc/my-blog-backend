@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.grey.myblog.model.request.TagAddRequest;
 import com.grey.myblog.model.request.TagPageListRequest;
 import com.grey.myblog.model.request.TagUpdateRequest;
-import com.grey.myblog.model.vo.TagVO;
+import com.grey.myblog.model.response.TagResponse;
 
 import java.util.List;
 
@@ -23,14 +23,14 @@ public interface TagService extends IService<TagDO> {
      * @param request 分页查询请求
      * @return 分页标签列表
      */
-    Page<TagVO> listTagPage(TagPageListRequest request);
+    Page<TagResponse> listTagPage(TagPageListRequest request);
 
     /**
      * 查询全部标签
      *
      * @return 标签列表
      */
-    List<TagVO> listAllTags();
+    List<TagResponse> listAllTags();
 
     /**
      * 根据ID查询标签
@@ -38,7 +38,7 @@ public interface TagService extends IService<TagDO> {
      * @param id 标签ID
      * @return 标签详情
      */
-    TagVO getTagById(Long id);
+    TagResponse getTagById(Long id);
 
     /**
      * 新增标签

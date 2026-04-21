@@ -1,4 +1,4 @@
-package com.grey.myblog.model.vo;
+package com.grey.myblog.model.response;
 
 import lombok.Data;
 
@@ -6,12 +6,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 标签视图对象
+ * 标签响应对象
  *
  * @author grey
  */
 @Data
-public class TagVO implements Serializable {
+public class TagResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

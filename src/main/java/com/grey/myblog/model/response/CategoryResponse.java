@@ -1,16 +1,16 @@
-package com.grey.myblog.model.vo;
+package com.grey.myblog.model.response;
 
 import lombok.Data;
 
 import java.io.Serializable;
 
 /**
- * 分类视图对象
+ * 分类响应对象
  *
  * @author grey
  */
 @Data
-public class CategoryVO implements Serializable {
+public class CategoryResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

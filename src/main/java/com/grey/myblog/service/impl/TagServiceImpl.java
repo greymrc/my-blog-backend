@@ -5,17 +5,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.grey.myblog.dao.TagDAO;
 import com.grey.myblog.exception.BusinessException;
-import com.grey.myblog.model.dataobject.TagDO;
 import com.grey.myblog.model.dataobject.ArticleTagDO;
+import com.grey.myblog.model.dataobject.TagDO;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.TagAddRequest;
 import com.grey.myblog.model.request.TagPageListRequest;
 import com.grey.myblog.model.request.TagUpdateRequest;
-import com.grey.myblog.model.vo.TagVO;
+import com.grey.myblog.model.response.TagResponse;
 import com.grey.myblog.service.ArticleTagService;
 import com.grey.myblog.service.TagService;
-import com.grey.myblog.mapper.TagMapper;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 * @createDate 2026-01-15 11:49:57
 */
 @Service
-public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO>
+public class TagServiceImpl extends ServiceImpl<TagDAO, TagDO>
     implements TagService{
 
     private static final int MAX_TAG_NAME_LENGTH = 50;
@@ -39,7 +39,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO>
     private ArticleTagService articleTagService;
 
     @Override
-    public Page<TagVO> listTagPage(TagPageListRequest request) {
+    public Page<TagResponse> listTagPage(TagPageListRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
@@ -55,28 +55,28 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO>
 
         QueryWrapper<TagDO> queryWrapper = buildQueryWrapper(request);
         Page<TagDO> tagPage = this.page(new Page<>(pageNum, pageSize), queryWrapper);
-        List<TagVO> tagVOList = tagPage.getRecords().stream()
-                .map(this::convertToTagVO)
+        List<TagResponse> tagVOList = tagPage.getRecords().stream()
+                .map(this::convertToTagResponse)
                 .collect(Collectors.toList());
 
-        Page<TagVO> tagVOPage = new Page<>(pageNum, pageSize, tagPage.getTotal());
+        Page<TagResponse> tagVOPage = new Page<>(pageNum, pageSize, tagPage.getTotal());
         tagVOPage.setRecords(tagVOList);
         return tagVOPage;
     }
 
     @Override
-    public List<TagVO> listAllTags() {
+    public List<TagResponse> listAllTags() {
         return this.list(new LambdaQueryWrapper<TagDO>()
                         .orderByAsc(TagDO::getName))
                 .stream()
-                .map(this::convertToTagVO)
+                .map(this::convertToTagResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public TagVO getTagById(Long id) {
+    public TagResponse getTagById(Long id) {
         TagDO tag = getExistingTag(id);
-        return convertToTagVO(tag);
+        return convertToTagResponse(tag);
     }
 
     @Override
@@ -228,8 +228,8 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO>
     /**
      * 转换为标签视图对象
      */
-    private TagVO convertToTagVO(TagDO tag) {
-        TagVO tagVO = new TagVO();
+    private TagResponse convertToTagResponse(TagDO tag) {
+        TagResponse tagVO = new TagResponse();
         BeanUtils.copyProperties(tag, tagVO);
         return tagVO;
     }
@@ -249,6 +249,5 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO>
         return StrUtil.isBlank(normalizedColor) ? null : normalizedColor;
     }
 }
-
 
 
