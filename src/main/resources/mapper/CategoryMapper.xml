@@ -10,10 +10,10 @@
             <result property="sortOrder" column="sort_order" />
             <result property="createTime" column="create_time" />
             <result property="updateTime" column="update_time" />
-            <result property="isDelete" column="is_delete" />
+            <result property="isDeleted" column="is_deleted" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,name,sort_order,create_time,update_time,is_delete
+        id,name,sort_order,create_time,update_time,is_deleted
     </sql>
 </mapper>

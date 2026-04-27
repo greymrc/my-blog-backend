@@ -39,7 +39,7 @@ public interface ArticleService extends IService<ArticleDO> {
 
     /**
      * 获取文章归档列表（轻量级）
-     * 只查询必要字段（id、title、createTime），填充分类和标签信息，按年月分组返回
+     * 只查询必要字段（id、articleTitle、createTime），填充分类和标签信息，按年月分组返回
      *
      * @param year  年份（可选），筛选指定年份的文章
      * @param month 月份（可选），筛选指定月份的文章

@@ -120,14 +120,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
 
     /**
      * 获取文章归档列表（轻量级）
-     * 只查询必要字段（id、title、createTime、categoryId），填充分类和标签信息，按年月分组返回
+     * 只查询必要字段（id、articleTitle、createTime、categoryId），填充分类和标签信息，按年月分组返回
      */
     @Override
     public Map<String, Map<String, List<ArticleArchiveResponse>>> getArticleArchive(Integer year, Integer month) {
         // 构建查询条件：只查询公开文章，只查询必要字段
         QueryWrapper<ArticleDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
-                .select(ArticleDO::getId, ArticleDO::getTitle, ArticleDO::getCreateTime, ArticleDO::getCategoryId)
+                .select(ArticleDO::getId, ArticleDO::getArticleTitle, ArticleDO::getCreateTime, ArticleDO::getCategoryId)
                 .eq(ArticleDO::getStatus, 1);
         
         // 按年份筛选（如果指定）
@@ -262,7 +262,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
 
     /**
      * 删除文章
-     * 校验参数和权限，执行逻辑删除（MyBatis-Plus会自动处理isDelete标记）
+     * 校验参数和权限，执行逻辑删除（MyBatis-Plus会自动处理 isDeleted 标记）
      */
     @Override
     public Boolean deleteArticle(Long id, UserDO loginUser) {
@@ -281,7 +281,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限删除此文章");
         }
         
-        // 执行逻辑删除（MyBatis-Plus会自动设置isDelete=1）
+        // 执行逻辑删除（MyBatis-Plus 会自动设置 isDeleted=1）
         return this.removeById(id);
     }
 
@@ -317,8 +317,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
         ArticleResponse articleVO = new ArticleResponse();
         BeanUtils.copyProperties(article, articleVO);
         
-        if (article.getContent() != null) {
-            articleVO.setWordCount(calculateWordCount(article.getContent()));
+        if (article.getArticleContent() != null) {
+            articleVO.setWordCount(calculateWordCount(article.getArticleContent()));
         }
         
         return articleVO;
@@ -457,7 +457,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
-        validateArticleCommonFields(request.getTitle(), request.getContent());
+        validateArticleCommonFields(request.getArticleTitle(), request.getArticleContent());
     }
 
     /**
@@ -467,18 +467,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
-        validateArticleCommonFields(request.getTitle(), request.getContent());
+        validateArticleCommonFields(request.getArticleTitle(), request.getArticleContent());
     }
 
     /**
      * 校验文章公共字段
      * 检查标题和内容不能为空
      */
-    private void validateArticleCommonFields(String title, String content) {
-        if (StrUtil.isBlank(title)) {
+    private void validateArticleCommonFields(String articleTitle, String articleContent) {
+        if (StrUtil.isBlank(articleTitle)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文章标题不能为空");
         }
-        if (StrUtil.isBlank(content)) {
+        if (StrUtil.isBlank(articleContent)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文章内容不能为空");
         }
     }
@@ -486,11 +486,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
     /**
      * 计算字数
      */
-    private Integer calculateWordCount(String content) {
-        if (content == null) {
+    private Integer calculateWordCount(String articleContent) {
+        if (articleContent == null) {
             return 0;
         }
-        return content.length();
+        return articleContent.length();
     }
 
     /**
@@ -533,7 +533,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
 
     /**
      * 将文章实体转换为归档VO对象
-     * 只复制必要字段：id、title、createTime
+     * 只复制必要字段：id、articleTitle、createTime
      *
      */
     private ArticleArchiveResponse convertToArticleArchiveResponse(ArticleDO article) {
@@ -542,7 +542,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDAO, ArticleDO>
         }
         ArticleArchiveResponse archiveVO = new ArticleArchiveResponse();
         archiveVO.setId(article.getId());
-        archiveVO.setTitle(article.getTitle());
+        archiveVO.setArticleTitle(article.getArticleTitle());
         archiveVO.setCreateTime(article.getCreateTime());
         return archiveVO;
     }

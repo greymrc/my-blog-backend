@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `role`          varchar(256)    NOT NULL DEFAULT 'user' COMMENT '用户角色：user/admin',
     `create_time`   datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `is_delete`     tinyint         NOT NULL DEFAULT '0'    COMMENT '是否删除（0-未删除，1-已删除）',
+    `is_deleted`     tinyint         NOT NULL DEFAULT '0'    COMMENT '是否删除（0-未删除，1-已删除）',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_account` (`account`),
     UNIQUE KEY `uk_email` (`email`),
@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- 文章表
 CREATE TABLE IF NOT EXISTS `article` (
     `id`            bigint          NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `title`         varchar(255)    NOT NULL                COMMENT '文章标题',
-    `content`       longtext                                COMMENT '文章内容',
-    `excerpt`       varchar(500)    DEFAULT NULL            COMMENT '文章摘要',
+    `article_title`         varchar(255)    NOT NULL                COMMENT '文章标题',
+    `article_content`       longtext                                COMMENT '文章内容',
+    `article_excerpt`       varchar(500)    DEFAULT NULL            COMMENT '文章摘要',
     `cover_image`   varchar(1024)    DEFAULT NULL            COMMENT '封面图片URL',
     `sort_order`    int             NOT NULL DEFAULT '0'    COMMENT '排序权重（0为默认，1000为置顶）',
     `view_count`    int             NOT NULL DEFAULT '0'    COMMENT '阅读量',
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `article` (
     `status`        tinyint         NOT NULL DEFAULT '0'    COMMENT '文章状态（0-草稿，1-公开，2-私密）',
     `create_time`   datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `is_delete`     tinyint         NOT NULL DEFAULT '0'    COMMENT '逻辑删除标记（0-正常，1-删除）',
+    `is_deleted`     tinyint         NOT NULL DEFAULT '0'    COMMENT '逻辑删除标记（0-正常，1-删除）',
     PRIMARY KEY (`id`),
     KEY `idx_category_id` (`category_id`),
     KEY `idx_author_id` (`author_id`)
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `category` (
     `sort_order`    int             NOT NULL DEFAULT '0'    COMMENT '排序权重（0为默认，1000为置顶）',
     `create_time`   datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `is_delete`     tinyint         NOT NULL DEFAULT '0'    COMMENT '逻辑删除标记（0-正常，1-删除）',
+    `is_deleted`     tinyint         NOT NULL DEFAULT '0'    COMMENT '逻辑删除标记（0-正常，1-删除）',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章分类表';
 
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `tag` (
     `color`         varchar(50)     DEFAULT NULL            COMMENT '标签颜色',
     `create_time`   datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `is_delete`     tinyint         NOT NULL DEFAULT '0'    COMMENT '逻辑删除标记（0-正常，1-删除）',
+    `is_deleted`     tinyint         NOT NULL DEFAULT '0'    COMMENT '逻辑删除标记（0-正常，1-删除）',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='标签表';
 

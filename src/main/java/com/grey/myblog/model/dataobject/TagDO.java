@@ -43,7 +43,7 @@ public class TagDO implements Serializable {
      * 逻辑删除标记（0-正常，1-删除）
      */
     @TableLogic
-    private Integer isDelete;
+    private Integer isDeleted;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

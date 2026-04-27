@@ -6,9 +6,9 @@
 
     <resultMap id="BaseResultMap" type="com.grey.myblog.model.dataobject.ArticleDO">
             <id property="id" column="id" />
-            <result property="title" column="title" />
-            <result property="content" column="content" />
-            <result property="excerpt" column="excerpt" />
+            <result property="articleTitle" column="article_title" />
+            <result property="articleContent" column="article_content" />
+            <result property="articleExcerpt" column="article_excerpt" />
             <result property="coverImage" column="cover_image" />
             <result property="sortOrder" column="sort_order" />
             <result property="viewCount" column="view_count" />
@@ -17,21 +17,21 @@
             <result property="status" column="status" />
             <result property="createTime" column="create_time" />
             <result property="updateTime" column="update_time" />
-            <result property="isDelete" column="is_delete" />
+            <result property="isDeleted" column="is_deleted" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,title,content,excerpt,cover_image,sort_order,
+        id,article_title,article_content,article_excerpt,cover_image,sort_order,
         view_count,category_id,author_id,status,create_time,
-        update_time,is_delete
+        update_time,is_deleted
     </sql>
 
     <!-- 自定义分页查询文章列表 -->
     <select id="selectArticlePage" resultMap="BaseResultMap">
         SELECT
             id,
-            title,
-            excerpt,
+            article_title,
+            article_excerpt,
             cover_image,
             sort_order,
             view_count,
@@ -40,10 +40,10 @@
             status,
             create_time,
             update_time,
-            is_delete
+            is_deleted
         FROM article
         <where>
-            is_delete = 0
+            is_deleted = 0
             <if test="request.categoryId != null">
                 AND category_id = #{request.categoryId}
             </if>

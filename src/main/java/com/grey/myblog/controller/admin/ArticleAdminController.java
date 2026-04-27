@@ -68,7 +68,7 @@ public class ArticleAdminController {
     /**
      * 获取文章归档列表（轻量级）
      * 按年月分组返回文章列表，支持按年份或年月筛选
-     * 只返回必要字段：id、title、createTime、category、tags
+     * 只返回必要字段：id、articleTitle、createTime、category、tags
      * 返回格式：Map<年份, Map<月份, List<文章归档VO>>>z
      */
     @GetMapping("/archive")

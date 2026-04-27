@@ -23,17 +23,17 @@ public class ArticleResponse implements Serializable {
     /**
      * 文章标题
      */
-    private String title;
+    private String articleTitle;
 
     /**
      * 文章内容（详情接口返回）
      */
-    private String content;
+    private String articleContent;
 
     /**
      * 文章摘要
      */
-    private String excerpt;
+    private String articleExcerpt;
 
     /**
      * 封面图片URL

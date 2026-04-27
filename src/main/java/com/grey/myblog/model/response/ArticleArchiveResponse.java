@@ -24,7 +24,7 @@ public class ArticleArchiveResponse implements Serializable {
     /**
      * 文章标题
      */
-    private String title;
+    private String articleTitle;
 
     /**
      * 创建时间

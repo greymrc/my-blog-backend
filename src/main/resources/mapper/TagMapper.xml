@@ -10,10 +10,10 @@
             <result property="color" column="color" />
             <result property="createTime" column="create_time" />
             <result property="updateTime" column="update_time" />
-            <result property="isDelete" column="is_delete" />
+            <result property="isDeleted" column="is_deleted" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,name,color,create_time,update_time,is_delete
+        id,name,color,create_time,update_time,is_deleted
     </sql>
 </mapper>

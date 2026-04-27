@@ -78,7 +78,7 @@ public class UserDO implements Serializable {
      * 是否删除（0-未删除，1-已删除）
      */
     @TableLogic
-    private Integer isDelete;
+    private Integer isDeleted;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

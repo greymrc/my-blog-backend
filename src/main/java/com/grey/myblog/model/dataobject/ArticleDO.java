@@ -22,17 +22,17 @@ public class ArticleDO implements Serializable {
     /**
      * 文章标题
      */
-    private String title;
+    private String articleTitle;
 
     /**
      * 文章内容
      */
-    private String content;
+    private String articleContent;
 
     /**
      * 文章摘要
      */
-    private String excerpt;
+    private String articleExcerpt;
 
     /**
      * 封面图片URL
@@ -78,7 +78,7 @@ public class ArticleDO implements Serializable {
      * 逻辑删除标记（0-正常，1-删除）
      */
     @TableLogic
-    private Integer isDelete;
+    private Integer isDeleted;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
