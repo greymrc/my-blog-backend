@@ -74,3 +74,17 @@ CREATE TABLE IF NOT EXISTS `article_tag` (
     KEY `idx_article_id` (`article_id`),
     KEY `idx_tag_id` (`tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章-标签关联表';
+
+-- 网站信息表
+CREATE TABLE IF NOT EXISTS `website_info` (
+    `id`             bigint         NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `blogger_name`   varchar(100)   NOT NULL                COMMENT '博主名称',
+    `avatar`         varchar(1024)  DEFAULT NULL            COMMENT '博主头像',
+    `intro`          varchar(500)   DEFAULT NULL            COMMENT '博主简介',
+    `github_url`     varchar(255)   DEFAULT NULL            COMMENT 'GitHub链接',
+    `email`          varchar(255)   DEFAULT NULL            COMMENT '联系邮箱',
+    `about_content`  text           DEFAULT NULL            COMMENT '关于我内容',
+    `update_time`    datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`     tinyint        NOT NULL DEFAULT '0'    COMMENT '逻辑删除标记（0-未删除，1-已删除）',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='网站信息表';
