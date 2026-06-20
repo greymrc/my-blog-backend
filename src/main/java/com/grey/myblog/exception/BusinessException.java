@@ -5,6 +5,8 @@ import lombok.Getter;
 
 /**
  * 自定义业务异常类
+ *
+ * @author grey
  */
 @Getter
 public class BusinessException extends RuntimeException{

@@ -2,7 +2,11 @@ package com.grey.myblog.model;
 
 import lombok.Data;
 
-
+/**
+ * 分页查询基础请求
+ *
+ * @author grey
+ */
 @Data
 public class PageRequest {
 
