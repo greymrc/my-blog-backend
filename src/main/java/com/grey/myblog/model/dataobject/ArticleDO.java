@@ -1,22 +1,17 @@
 package com.grey.myblog.model.dataobject;
 
-import com.baomidou.mybatisplus.annotation.*;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 文章表
- * @TableName article
  */
-@TableName(value ="article")
 @Data
 public class ArticleDO implements Serializable {
     /**
      * 主键ID
      */
-    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -77,9 +72,7 @@ public class ArticleDO implements Serializable {
     /**
      * 逻辑删除标记（0-正常，1-删除）
      */
-    @TableLogic
     private Integer isDeleted;
 
-    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

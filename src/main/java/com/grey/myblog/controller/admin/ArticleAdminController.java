@@ -14,7 +14,7 @@ import com.grey.myblog.model.response.ArticleResponse;
 import com.grey.myblog.model.response.ArticleArchiveResponse;
 import com.grey.myblog.service.ArticleService;
 import com.grey.myblog.service.UserService;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.grey.myblog.model.PageResult;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.ObjectUtils;
@@ -42,12 +42,12 @@ public class ArticleAdminController {
      * 文章列表（主页）（无正文，只有摘要）
      */
     @PostMapping("/list")
-    public Result<Page<ArticleResponse>> listArticles(@RequestBody ArticlePageListRequest request) {
+    public Result<PageResult<ArticleResponse>> listArticles(@RequestBody ArticlePageListRequest request) {
         // 请求参数为空时使用默认值，避免空指针异常
         if (request == null) {
             request = new ArticlePageListRequest();
         }
-        Page<ArticleResponse> articlePage = articleService.listArticles(request);
+        PageResult<ArticleResponse> articlePage = articleService.listArticles(request);
         return Result.success(articlePage);
     }
 

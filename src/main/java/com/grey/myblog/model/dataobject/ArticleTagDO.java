@@ -1,25 +1,17 @@
 package com.grey.myblog.model.dataobject;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 文章-标签关联表
- * @TableName article_tag
  */
-@TableName(value ="article_tag")
 @Data
 public class ArticleTagDO implements Serializable {
     /**
      * 主键ID
      */
-    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
@@ -42,6 +34,5 @@ public class ArticleTagDO implements Serializable {
      */
     private Date updateTime;
 
-    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

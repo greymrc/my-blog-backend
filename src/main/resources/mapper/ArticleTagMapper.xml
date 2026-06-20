@@ -5,14 +5,86 @@
 <mapper namespace="com.grey.myblog.dao.ArticleTagDAO">
 
     <resultMap id="BaseResultMap" type="com.grey.myblog.model.dataobject.ArticleTagDO">
-            <id property="id" column="id" />
-            <result property="articleId" column="article_id" />
-            <result property="tagId" column="tag_id" />
-            <result property="createTime" column="create_time" />
-            <result property="updateTime" column="update_time" />
+        <id property="id" column="id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="tagId" column="tag_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,article_id,tag_id,create_time,update_time
+        id, article_id, tag_id, create_time, update_time
     </sql>
+
+    <!-- 插入关联 -->
+    <insert id="insert" parameterType="com.grey.myblog.model.dataobject.ArticleTagDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article_tag (article_id, tag_id, create_time, update_time)
+        VALUES (#{articleId}, #{tagId}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 批量插入关联 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO article_tag (article_id, tag_id, create_time, update_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.articleId}, #{item.tagId}, #{item.createTime}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <!-- 根据文章ID删除所有关联 -->
+    <delete id="deleteByArticleId">
+        DELETE FROM article_tag WHERE article_id = #{articleId}
+    </delete>
+
+    <!-- 根据标签ID删除所有关联 -->
+    <delete id="deleteByTagId">
+        DELETE FROM article_tag WHERE tag_id = #{tagId}
+    </delete>
+
+    <!-- 根据ID查询关联 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM article_tag
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据文章ID查询关联列表 -->
+    <select id="selectByArticleId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM article_tag
+        WHERE article_id = #{articleId}
+    </select>
+
+    <!-- 根据标签ID查询关联列表 -->
+    <select id="selectByTagId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM article_tag
+        WHERE tag_id = #{tagId}
+    </select>
+
+    <!-- 根据文章ID批量查询关联 -->
+    <select id="selectByArticleIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM article_tag
+        WHERE article_id IN
+        <foreach collection="articleIds" item="articleId" open="(" separator="," close=")">
+            #{articleId}
+        </foreach>
+    </select>
+
+    <!-- 条件查询关联列表 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM article_tag
+        <where>
+            <if test="articleTag.articleId != null">AND article_id = #{articleTag.articleId}</if>
+            <if test="articleTag.tagId != null">AND tag_id = #{articleTag.tagId}</if>
+        </where>
+    </select>
+
+    <!-- 根据标签ID统计关联数量 -->
+    <select id="countByTagId" resultType="long">
+        SELECT COUNT(*) FROM article_tag WHERE tag_id = #{tagId}
+    </select>
+
 </mapper>

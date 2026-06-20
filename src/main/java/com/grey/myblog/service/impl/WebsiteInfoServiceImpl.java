@@ -1,8 +1,6 @@
 package com.grey.myblog.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.grey.myblog.dao.WebsiteInfoDAO;
 import com.grey.myblog.exception.BusinessException;
 import com.grey.myblog.model.dataobject.WebsiteInfoDO;
@@ -10,22 +8,26 @@ import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.WebsiteInfoUpdateRequest;
 import com.grey.myblog.model.response.WebsiteInfoResponse;
 import com.grey.myblog.service.WebsiteInfoService;
+import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
 /**
- * 网站信息表数据库操作Service实现
+ * 网站信息服务实现类
  *
  * @author grey
  */
 @Service
-public class WebsiteInfoServiceImpl extends ServiceImpl<WebsiteInfoDAO, WebsiteInfoDO>
-        implements WebsiteInfoService {
+public class WebsiteInfoServiceImpl implements WebsiteInfoService {
 
     private static final int MAX_BLOGGER_NAME_LENGTH = 100;
     private static final int MAX_INTRO_LENGTH = 500;
+
+    @Resource
+    private WebsiteInfoDAO websiteInfoDAO;
 
     @Override
     public WebsiteInfoResponse getWebsiteInfo() {
@@ -34,6 +36,7 @@ public class WebsiteInfoServiceImpl extends ServiceImpl<WebsiteInfoDAO, WebsiteI
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean updateWebsiteInfo(WebsiteInfoUpdateRequest request) {
         validateWebsiteInfoUpdateRequest(request);
         WebsiteInfoDO existingWebsiteInfo = getOrCreateWebsiteInfo();
@@ -48,8 +51,8 @@ public class WebsiteInfoServiceImpl extends ServiceImpl<WebsiteInfoDAO, WebsiteI
         websiteInfo.setAboutContent(normalizeOptionalField(request.getAboutContent()));
         websiteInfo.setUpdateTime(new Date());
 
-        boolean result = this.updateById(websiteInfo);
-        if (!result) {
+        int result = websiteInfoDAO.updateById(websiteInfo);
+        if (result <= 0) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "更新网站信息失败");
         }
         return true;
@@ -59,8 +62,7 @@ public class WebsiteInfoServiceImpl extends ServiceImpl<WebsiteInfoDAO, WebsiteI
      * 获取或初始化网站信息
      */
     private WebsiteInfoDO getOrCreateWebsiteInfo() {
-        WebsiteInfoDO websiteInfo = this.getOne(new LambdaQueryWrapper<WebsiteInfoDO>()
-                .last("LIMIT 1"));
+        WebsiteInfoDO websiteInfo = websiteInfoDAO.selectFirst();
         if (websiteInfo != null) {
             return websiteInfo;
         }
@@ -70,8 +72,8 @@ public class WebsiteInfoServiceImpl extends ServiceImpl<WebsiteInfoDAO, WebsiteI
         defaultWebsiteInfo.setUpdateTime(new Date());
         defaultWebsiteInfo.setIsDeleted(0);
 
-        boolean saved = this.save(defaultWebsiteInfo);
-        if (!saved) {
+        int result = websiteInfoDAO.insert(defaultWebsiteInfo);
+        if (result <= 0) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "初始化网站信息失败");
         }
         return defaultWebsiteInfo;

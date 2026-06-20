@@ -5,24 +5,165 @@
 <mapper namespace="com.grey.myblog.dao.UserDAO">
 
     <resultMap id="BaseResultMap" type="com.grey.myblog.model.dataobject.UserDO">
-        <id property="id" column="id" />
-        <result property="account" column="account" />
-        <result property="password" column="password" />
-        <result property="nickname" column="nickname" />
-        <result property="email" column="email" />
-        <result property="mobile" column="mobile" />
-        <result property="gender" column="gender" />
-        <result property="avatar" column="avatar" />
-        <result property="profile" column="profile" />
-        <result property="role" column="role" />
-        <result property="createTime" column="create_time" />
-        <result property="updateTime" column="update_time" />
-        <result property="isDeleted" column="is_deleted" />
+        <id property="id" column="id"/>
+        <result property="account" column="account"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="email" column="email"/>
+        <result property="mobile" column="mobile"/>
+        <result property="gender" column="gender"/>
+        <result property="avatar" column="avatar"/>
+        <result property="profile" column="profile"/>
+        <result property="role" column="role"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDeleted" column="is_deleted"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,account,password,nickname,email,mobile,
-        gender,avatar,profile,role,create_time,
-        update_time,is_deleted
+        id, account, password, nickname, email, mobile,
+        gender, avatar, profile, role, create_time, update_time, is_deleted
     </sql>
+
+    <!-- 插入用户 -->
+    <insert id="insert" parameterType="com.grey.myblog.model.dataobject.UserDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (
+            account, password, nickname, email, mobile, gender, avatar, profile, role,
+            create_time, update_time, is_deleted
+        ) VALUES (
+            #{account}, #{password}, #{nickname}, #{email}, #{mobile}, #{gender}, #{avatar}, #{profile}, #{role},
+            #{createTime}, #{updateTime}, 0
+        )
+    </insert>
+
+    <!-- 批量插入用户 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO user (
+            account, password, nickname, email, mobile, gender, avatar, profile, role,
+            create_time, update_time, is_deleted
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.account}, #{item.password}, #{item.nickname}, #{item.email}, #{item.mobile}, #{item.gender},
+                #{item.avatar}, #{item.profile}, #{item.role}, #{item.createTime}, #{item.updateTime}, 0
+            )
+        </foreach>
+    </insert>
+
+    <!-- 根据ID更新用户（动态更新非空字段） -->
+    <update id="updateById" parameterType="com.grey.myblog.model.dataobject.UserDO">
+        UPDATE user
+        <set>
+            <if test="account != null">account = #{account},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="mobile != null">mobile = #{mobile},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="profile != null">profile = #{profile},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 根据ID逻辑删除用户 -->
+    <update id="deleteById">
+        UPDATE user SET is_deleted = 1, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 根据ID查询用户 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <!-- 根据ID批量查询用户 -->
+    <select id="selectBatchIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE is_deleted = 0
+        AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 根据账号查询用户 -->
+    <select id="selectByAccount" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE account = #{account} AND is_deleted = 0
+    </select>
+
+    <!-- 条件查询用户列表 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        <where>
+            is_deleted = 0
+            <if test="user.account != null">AND account = #{user.account}</if>
+            <if test="user.nickname != null">AND nickname LIKE CONCAT('%', #{user.nickname}, '%')</if>
+            <if test="user.email != null">AND email = #{user.email}</if>
+            <if test="user.role != null">AND role = #{user.role}</if>
+            <if test="user.profile != null">AND profile LIKE CONCAT('%', #{user.profile}, '%')</if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 条件统计用户数量 -->
+    <select id="selectCount" resultType="long">
+        SELECT COUNT(*)
+        FROM user
+        <where>
+            is_deleted = 0
+            <if test="user.account != null">AND account = #{user.account}</if>
+            <if test="user.nickname != null">AND nickname LIKE CONCAT('%', #{user.nickname}, '%')</if>
+            <if test="user.email != null">AND email = #{user.email}</if>
+            <if test="user.role != null">AND role = #{user.role}</if>
+        </where>
+    </select>
+
+    <!-- 分页查询用户列表 -->
+    <select id="selectUserPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        <where>
+            is_deleted = 0
+            <if test="request.id != null">AND id = #{request.id}</if>
+            <if test="request.account != null and request.account != ''">AND account = #{request.account}</if>
+            <if test="request.nickname != null and request.nickname != ''">AND nickname LIKE CONCAT('%', #{request.nickname}, '%')</if>
+            <if test="request.email != null and request.email != ''">AND email = #{request.email}</if>
+            <if test="request.role != null and request.role != ''">AND role = #{request.role}</if>
+            <if test="request.profile != null and request.profile != ''">AND profile LIKE CONCAT('%', #{request.profile}, '%')</if>
+        </where>
+        <if test="request.sortField != null and request.sortField != ''">
+            <choose>
+                <when test="request.sortOrder == 'descend' or request.sortOrder == 'desc'">
+                    ORDER BY ${request.sortField} DESC
+                </when>
+                <otherwise>
+                    ORDER BY ${request.sortField} ASC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="request.sortField == null or request.sortField == ''">
+            ORDER BY create_time DESC
+        </if>
+    </select>
+
+    <!-- 根据账号和密码查询用户（登录） -->
+    <select id="selectByAccountAndPassword" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE account = #{account} AND password = #{password} AND is_deleted = 0
+    </select>
+
+    <!-- 根据账号统计数量（检查账号是否存在） -->
+    <select id="countByAccount" resultType="long">
+        SELECT COUNT(*) FROM user WHERE account = #{account} AND is_deleted = 0
+    </select>
+
 </mapper>

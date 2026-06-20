@@ -1,6 +1,6 @@
 package com.grey.myblog.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.grey.myblog.model.PageResult;
 import com.grey.myblog.model.dataobject.ArticleDO;
 import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.request.ArticleAddRequest;
@@ -8,7 +8,6 @@ import com.grey.myblog.model.request.ArticlePageListRequest;
 import com.grey.myblog.model.request.ArticleUpdateRequest;
 import com.grey.myblog.model.response.ArticleResponse;
 import com.grey.myblog.model.response.ArticleArchiveResponse;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,7 @@ import java.util.Map;
  *
  * @author grey
  */
-public interface ArticleService extends IService<ArticleDO> {
+public interface ArticleService {
 
     /**
      * 分页查询文章列表 (文章只返回摘要，不返回完整内容)
@@ -26,7 +25,7 @@ public interface ArticleService extends IService<ArticleDO> {
      * @param request 分页查询请求
      * @return 分页文章列表
      */
-    Page<ArticleResponse> listArticles(ArticlePageListRequest request);
+    PageResult<ArticleResponse> listArticles(ArticlePageListRequest request);
 
     /**
      * 获取文章详情

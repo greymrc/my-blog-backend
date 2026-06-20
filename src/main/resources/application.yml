@@ -40,16 +40,18 @@ server:
       cookie:
         max-age: 2592000
 
-# Mybatis-plus 配置
-mybatis-plus:
+# Mybatis 配置
+mybatis:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  global-config:
-    db-config:
-      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
-      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
-      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+  mapper-locations: classpath:mapper/*.xml
+
+# PageHelper 分页配置
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
 
 # springdoc-openapi  knife4j 配置
 springdoc:

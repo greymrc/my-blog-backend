@@ -1,6 +1,6 @@
 package com.grey.myblog.controller.admin;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.grey.myblog.model.PageResult;
 import com.grey.myblog.annotation.AuthCheck;
 import com.grey.myblog.common.Result;
 import com.grey.myblog.model.DeleteRequest;
@@ -33,7 +33,7 @@ public class CategoryAdminController {
      */
     @PostMapping("/list")
     @AuthCheck(mustRole = "admin")
-    public Result<Page<CategoryResponse>> listCategoryPage(@RequestBody(required = false) CategoryPageListRequest request) {
+    public Result<PageResult<CategoryResponse>> listCategoryPage(@RequestBody(required = false) CategoryPageListRequest request) {
         if (request == null) {
             request = new CategoryPageListRequest();
         }

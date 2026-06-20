@@ -1,22 +1,17 @@
 package com.grey.myblog.model.dataobject;
 
-import com.baomidou.mybatisplus.annotation.*;
-
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
 /**
  * 用户表
- * @TableName user
  */
-@TableName(value ="user")
 @Data
 public class UserDO implements Serializable {
     /**
      * 主键ID
      */
-    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -77,9 +72,7 @@ public class UserDO implements Serializable {
     /**
      * 是否删除（0-未删除，1-已删除）
      */
-    @TableLogic
     private Integer isDeleted;
 
-    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

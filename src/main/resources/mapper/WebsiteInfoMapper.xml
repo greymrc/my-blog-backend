@@ -5,18 +5,74 @@
 <mapper namespace="com.grey.myblog.dao.WebsiteInfoDAO">
 
     <resultMap id="BaseResultMap" type="com.grey.myblog.model.dataobject.WebsiteInfoDO">
-        <id property="id" column="id" />
-        <result property="bloggerName" column="blogger_name" />
-        <result property="avatar" column="avatar" />
-        <result property="intro" column="intro" />
-        <result property="githubUrl" column="github_url" />
-        <result property="email" column="email" />
-        <result property="aboutContent" column="about_content" />
-        <result property="updateTime" column="update_time" />
-        <result property="isDeleted" column="is_deleted" />
+        <id property="id" column="id"/>
+        <result property="bloggerName" column="blogger_name"/>
+        <result property="avatar" column="avatar"/>
+        <result property="intro" column="intro"/>
+        <result property="githubUrl" column="github_url"/>
+        <result property="email" column="email"/>
+        <result property="aboutContent" column="about_content"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDeleted" column="is_deleted"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,blogger_name,avatar,intro,github_url,email,about_content,update_time,is_deleted
+        id, blogger_name, avatar, intro, github_url, email, about_content, update_time, is_deleted
     </sql>
+
+    <!-- 插入网站信息 -->
+    <insert id="insert" parameterType="com.grey.myblog.model.dataobject.WebsiteInfoDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO website_info (
+            blogger_name, avatar, intro, github_url, email, about_content, update_time, is_deleted
+        ) VALUES (
+            #{bloggerName}, #{avatar}, #{intro}, #{githubUrl}, #{email}, #{aboutContent}, #{updateTime}, 0
+        )
+    </insert>
+
+    <!-- 根据ID更新网站信息（动态更新非空字段） -->
+    <update id="updateById" parameterType="com.grey.myblog.model.dataobject.WebsiteInfoDO">
+        UPDATE website_info
+        <set>
+            <if test="bloggerName != null">blogger_name = #{bloggerName},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="intro != null">intro = #{intro},</if>
+            <if test="githubUrl != null">github_url = #{githubUrl},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="aboutContent != null">about_content = #{aboutContent},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 根据ID逻辑删除网站信息 -->
+    <update id="deleteById">
+        UPDATE website_info SET is_deleted = 1, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 根据ID查询网站信息 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM website_info
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <!-- 查询第一条网站信息（用于获取唯一配置） -->
+    <select id="selectFirst" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM website_info
+        WHERE is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- 条件查询网站信息列表 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM website_info
+        <where>
+            is_deleted = 0
+            <if test="websiteInfo.bloggerName != null">AND blogger_name LIKE CONCAT('%', #{websiteInfo.bloggerName}, '%')</if>
+        </where>
+        ORDER BY update_time DESC
+    </select>
+
 </mapper>

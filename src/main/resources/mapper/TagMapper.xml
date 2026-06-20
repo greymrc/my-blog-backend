@@ -5,15 +5,147 @@
 <mapper namespace="com.grey.myblog.dao.TagDAO">
 
     <resultMap id="BaseResultMap" type="com.grey.myblog.model.dataobject.TagDO">
-            <id property="id" column="id" />
-            <result property="name" column="name" />
-            <result property="color" column="color" />
-            <result property="createTime" column="create_time" />
-            <result property="updateTime" column="update_time" />
-            <result property="isDeleted" column="is_deleted" />
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="color" column="color"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDeleted" column="is_deleted"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,name,color,create_time,update_time,is_deleted
+        id, name, color, create_time, update_time, is_deleted
     </sql>
+
+    <!-- 插入标签 -->
+    <insert id="insert" parameterType="com.grey.myblog.model.dataobject.TagDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tag (name, color, create_time, update_time, is_deleted)
+        VALUES (#{name}, #{color}, #{createTime}, #{updateTime}, 0)
+    </insert>
+
+    <!-- 批量插入标签 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO tag (name, color, create_time, update_time, is_deleted)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name}, #{item.color}, #{item.createTime}, #{item.updateTime}, 0)
+        </foreach>
+    </insert>
+
+    <!-- 根据ID更新标签（动态更新非空字段） -->
+    <update id="updateById" parameterType="com.grey.myblog.model.dataobject.TagDO">
+        UPDATE tag
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="color != null">color = #{color},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 根据ID逻辑删除标签 -->
+    <update id="deleteById">
+        UPDATE tag SET is_deleted = 1, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 根据ID查询标签 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tag
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <!-- 根据ID批量查询标签 -->
+    <select id="selectBatchIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tag
+        WHERE is_deleted = 0
+        AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 条件查询标签列表 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tag
+        <where>
+            is_deleted = 0
+            <if test="tag.name != null">AND name LIKE CONCAT('%', #{tag.name}, '%')</if>
+        </where>
+        ORDER BY name ASC
+    </select>
+
+    <!-- 条件统计标签数量 -->
+    <select id="selectCount" resultType="long">
+        SELECT COUNT(*)
+        FROM tag
+        <where>
+            is_deleted = 0
+            <if test="tag.name != null">AND name LIKE CONCAT('%', #{tag.name}, '%')</if>
+        </where>
+    </select>
+
+    <!-- 根据名称查询标签 -->
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tag
+        WHERE name = #{name} AND is_deleted = 0
+    </select>
+
+    <!-- 分页查询标签列表 -->
+    <select id="selectTagPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tag
+        <where>
+            is_deleted = 0
+            <if test="request.name != null and request.name != ''">
+                AND name LIKE CONCAT('%', #{request.name}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="request.sortField != null and request.sortField != ''">
+                <choose>
+                    <when test="request.sortField == 'name'">
+                        <choose>
+                            <when test="request.sortOrder == 'ascend' or request.sortOrder == 'asc'">
+                                ORDER BY name ASC
+                            </when>
+                            <otherwise>
+                                ORDER BY name DESC
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <when test="request.sortField == 'createTime' or request.sortField == 'create_time'">
+                        <choose>
+                            <when test="request.sortOrder == 'ascend' or request.sortOrder == 'asc'">
+                                ORDER BY create_time ASC
+                            </when>
+                            <otherwise>
+                                ORDER BY create_time DESC
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <when test="request.sortField == 'updateTime' or request.sortField == 'update_time'">
+                        <choose>
+                            <when test="request.sortOrder == 'ascend' or request.sortOrder == 'asc'">
+                                ORDER BY update_time ASC
+                            </when>
+                            <otherwise>
+                                ORDER BY update_time DESC
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <otherwise>
+                        ORDER BY update_time DESC
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                ORDER BY update_time DESC
+            </otherwise>
+        </choose>
+    </select>
+
 </mapper>

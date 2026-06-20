@@ -5,15 +5,162 @@
 <mapper namespace="com.grey.myblog.dao.CategoryDAO">
 
     <resultMap id="BaseResultMap" type="com.grey.myblog.model.dataobject.CategoryDO">
-            <id property="id" column="id" />
-            <result property="name" column="name" />
-            <result property="sortOrder" column="sort_order" />
-            <result property="createTime" column="create_time" />
-            <result property="updateTime" column="update_time" />
-            <result property="isDeleted" column="is_deleted" />
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDeleted" column="is_deleted"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,name,sort_order,create_time,update_time,is_deleted
+        id, name, sort_order, create_time, update_time, is_deleted
     </sql>
+
+    <!-- 插入分类 -->
+    <insert id="insert" parameterType="com.grey.myblog.model.dataobject.CategoryDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO category (name, sort_order, create_time, update_time, is_deleted)
+        VALUES (#{name}, #{sortOrder}, #{createTime}, #{updateTime}, 0)
+    </insert>
+
+    <!-- 批量插入分类 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO category (name, sort_order, create_time, update_time, is_deleted)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name}, #{item.sortOrder}, #{item.createTime}, #{item.updateTime}, 0)
+        </foreach>
+    </insert>
+
+    <!-- 根据ID更新分类（动态更新非空字段） -->
+    <update id="updateById" parameterType="com.grey.myblog.model.dataobject.CategoryDO">
+        UPDATE category
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 根据ID逻辑删除分类 -->
+    <update id="deleteById">
+        UPDATE category SET is_deleted = 1, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 根据ID查询分类 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM category
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <!-- 根据ID批量查询分类 -->
+    <select id="selectBatchIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM category
+        WHERE is_deleted = 0
+        AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 条件查询分类列表 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM category
+        <where>
+            is_deleted = 0
+            <if test="category.name != null">AND name LIKE CONCAT('%', #{category.name}, '%')</if>
+        </where>
+        ORDER BY sort_order DESC, update_time DESC
+    </select>
+
+    <!-- 条件统计分类数量 -->
+    <select id="selectCount" resultType="long">
+        SELECT COUNT(*)
+        FROM category
+        <where>
+            is_deleted = 0
+            <if test="category.name != null">AND name LIKE CONCAT('%', #{category.name}, '%')</if>
+        </where>
+    </select>
+
+    <!-- 根据名称查询分类 -->
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM category
+        WHERE name = #{name} AND is_deleted = 0
+    </select>
+
+    <!-- 分页查询分类列表 -->
+    <select id="selectCategoryPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM category
+        <where>
+            is_deleted = 0
+            <if test="request.name != null and request.name != ''">
+                AND name LIKE CONCAT('%', #{request.name}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="request.sortField != null and request.sortField != ''">
+                <choose>
+                    <when test="request.sortField == 'name'">
+                        <choose>
+                            <when test="request.sortOrder == 'ascend' or request.sortOrder == 'asc'">
+                                ORDER BY name ASC
+                            </when>
+                            <otherwise>
+                                ORDER BY name DESC
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <when test="request.sortField == 'sortOrder' or request.sortField == 'sort_order'">
+                        <choose>
+                            <when test="request.sortOrder == 'ascend' or request.sortOrder == 'asc'">
+                                ORDER BY sort_order ASC
+                            </when>
+                            <otherwise>
+                                ORDER BY sort_order DESC
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <when test="request.sortField == 'createTime' or request.sortField == 'create_time'">
+                        <choose>
+                            <when test="request.sortOrder == 'ascend' or request.sortOrder == 'asc'">
+                                ORDER BY create_time ASC
+                            </when>
+                            <otherwise>
+                                ORDER BY create_time DESC
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <when test="request.sortField == 'updateTime' or request.sortField == 'update_time'">
+                        <choose>
+                            <when test="request.sortOrder == 'ascend' or request.sortOrder == 'asc'">
+                                ORDER BY update_time ASC
+                            </when>
+                            <otherwise>
+                                ORDER BY update_time DESC
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <otherwise>
+                        ORDER BY sort_order DESC, update_time DESC
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                ORDER BY sort_order DESC, update_time DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 查询分类下的文章数量 -->
+    <select id="countArticlesByCategoryId" resultType="long">
+        SELECT COUNT(*) FROM article WHERE category_id = #{categoryId} AND is_deleted = 0
+    </select>
+
 </mapper>

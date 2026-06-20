@@ -1,21 +1,21 @@
 package com.grey.myblog.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.grey.myblog.model.PageResult;
 import com.grey.myblog.model.dataobject.TagDO;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.grey.myblog.model.request.TagAddRequest;
 import com.grey.myblog.model.request.TagPageListRequest;
 import com.grey.myblog.model.request.TagUpdateRequest;
 import com.grey.myblog.model.response.TagResponse;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
-* @author grey
-* @description 针对表【tag(标签表)】的数据库操作Service
-* @createDate 2026-01-15 11:49:57
-*/
-public interface TagService extends IService<TagDO> {
+ * 标签服务接口
+ *
+ * @author grey
+ */
+public interface TagService {
 
     /**
      * 分页查询标签列表
@@ -23,7 +23,7 @@ public interface TagService extends IService<TagDO> {
      * @param request 分页查询请求
      * @return 分页标签列表
      */
-    Page<TagResponse> listTagPage(TagPageListRequest request);
+    PageResult<TagResponse> listTagPage(TagPageListRequest request);
 
     /**
      * 查询全部标签
@@ -63,4 +63,20 @@ public interface TagService extends IService<TagDO> {
      * @return 是否成功
      */
     Boolean deleteTag(Long id);
+
+    /**
+     * 根据ID批量查询标签
+     *
+     * @param ids 标签ID集合
+     * @return 标签列表
+     */
+    List<TagDO> listByIds(Collection<Long> ids);
+
+    /**
+     * 根据名称查询标签
+     *
+     * @param name 标签名称
+     * @return 标签实体
+     */
+    TagDO getByName(String name);
 }

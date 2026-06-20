@@ -1,6 +1,6 @@
 package com.grey.myblog.controller.admin;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.grey.myblog.model.PageResult;
 import com.grey.myblog.annotation.AuthCheck;
 import com.grey.myblog.common.Result;
 import com.grey.myblog.model.DeleteRequest;
@@ -33,7 +33,7 @@ public class TagAdminController {
      */
     @PostMapping("/list")
     @AuthCheck(mustRole = "admin")
-    public Result<Page<TagResponse>> listTagPage(@RequestBody(required = false) TagPageListRequest request) {
+    public Result<PageResult<TagResponse>> listTagPage(@RequestBody(required = false) TagPageListRequest request) {
         if (request == null) {
             request = new TagPageListRequest();
         }
