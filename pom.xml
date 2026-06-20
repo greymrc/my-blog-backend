@@ -91,12 +91,6 @@
 <!--            <groupId>org.springframework.session</groupId>-->
 <!--            <artifactId>spring-session-data-redis</artifactId>-->
 <!--        </dependency>-->
-        <!--cos依赖——腾讯云 -->
-        <dependency>
-            <groupId>com.qcloud</groupId>
-            <artifactId>cos_api</artifactId>
-            <version>5.6.227</version>
-        </dependency>
 
     </dependencies>
 
