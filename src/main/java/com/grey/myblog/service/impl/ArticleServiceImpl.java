@@ -152,12 +152,19 @@ public class ArticleServiceImpl implements ArticleService {
     public Long addArticle(ArticleAddRequest request, UserDO loginUser) {
         validateArticleRequest(request);
 
-        ArticleDO article = new ArticleDO();
-        BeanUtils.copyProperties(request, article);
-        article.setAuthorId(loginUser.getId());
-        article.setViewCount(0);
-        article.setCreateTime(new Date());
-        article.setUpdateTime(new Date());
+        ArticleDO article = ArticleDO.builder()
+                .articleTitle(request.getArticleTitle())
+                .articleContent(request.getArticleContent())
+                .articleExcerpt(request.getArticleExcerpt())
+                .coverImage(request.getCoverImage())
+                .categoryId(request.getCategoryId())
+                .status(request.getStatus())
+                .sortOrder(request.getSortOrder())
+                .authorId(loginUser.getId())
+                .viewCount(0)
+                .createTime(new Date())
+                .updateTime(new Date())
+                .build();
 
         int result = articleDAO.insert(article);
         if (result <= 0) {
@@ -191,9 +198,17 @@ public class ArticleServiceImpl implements ArticleService {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限修改此文章");
         }
 
-        ArticleDO article = new ArticleDO();
-        BeanUtils.copyProperties(request, article);
-        article.setUpdateTime(new Date());
+        ArticleDO article = ArticleDO.builder()
+                .id(request.getId())
+                .articleTitle(request.getArticleTitle())
+                .articleContent(request.getArticleContent())
+                .articleExcerpt(request.getArticleExcerpt())
+                .coverImage(request.getCoverImage())
+                .categoryId(request.getCategoryId())
+                .status(request.getStatus())
+                .sortOrder(request.getSortOrder())
+                .updateTime(new Date())
+                .build();
 
         int result = articleDAO.updateById(article);
         if (result <= 0) {
@@ -340,15 +355,14 @@ public class ArticleServiceImpl implements ArticleService {
      * 批量保存文章标签关联关系
      */
     private void saveArticleTags(Long articleId, List<Long> tagIds) {
+        Date now = new Date();
         List<ArticleTagDO> articleTags = tagIds.stream()
-                .map(tagId -> {
-                    ArticleTagDO articleTag = new ArticleTagDO();
-                    articleTag.setArticleId(articleId);
-                    articleTag.setTagId(tagId);
-                    articleTag.setCreateTime(new Date());
-                    articleTag.setUpdateTime(new Date());
-                    return articleTag;
-                })
+                .map(tagId -> ArticleTagDO.builder()
+                        .articleId(articleId)
+                        .tagId(tagId)
+                        .createTime(now)
+                        .updateTime(now)
+                        .build())
                 .collect(Collectors.toList());
 
         articleTagService.saveBatch(articleTags);

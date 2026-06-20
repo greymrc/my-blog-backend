@@ -68,8 +68,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<TagResponse> listAllTags() {
-        TagDO query = new TagDO();
-        List<TagDO> tagList = tagDAO.selectList(query);
+        List<TagDO> tagList = tagDAO.selectList(new TagDO());
         return tagList.stream()
                 .map(this::convertToTagResponse)
                 .collect(Collectors.toList());
@@ -87,11 +86,12 @@ public class TagServiceImpl implements TagService {
         String tagName = normalizeTagName(request.getName());
         checkTagNameUnique(tagName, null);
 
-        TagDO tag = new TagDO();
-        tag.setName(tagName);
-        tag.setColor(normalizeColor(request.getColor()));
-        tag.setCreateTime(new Date());
-        tag.setUpdateTime(new Date());
+        TagDO tag = TagDO.builder()
+                .name(tagName)
+                .color(normalizeColor(request.getColor()))
+                .createTime(new Date())
+                .updateTime(new Date())
+                .build();
 
         int result = tagDAO.insert(tag);
         if (result <= 0) {
@@ -107,11 +107,12 @@ public class TagServiceImpl implements TagService {
         String tagName = normalizeTagName(request.getName());
         checkTagNameUnique(tagName, existingTag.getId());
 
-        TagDO tag = new TagDO();
-        tag.setId(existingTag.getId());
-        tag.setName(tagName);
-        tag.setColor(normalizeColor(request.getColor()));
-        tag.setUpdateTime(new Date());
+        TagDO tag = TagDO.builder()
+                .id(existingTag.getId())
+                .name(tagName)
+                .color(normalizeColor(request.getColor()))
+                .updateTime(new Date())
+                .build();
 
         int result = tagDAO.updateById(tag);
         if (result <= 0) {

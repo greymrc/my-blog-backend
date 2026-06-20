@@ -58,13 +58,14 @@ public class UserServiceImpl implements UserService {
         String encryptPassword = this.getEncryptPassword(userPassword);
 
         // 组装用户数据并插入数据库
-        UserDO registerUser = new UserDO();
-        registerUser.setAccount(userAccount);
-        registerUser.setPassword(encryptPassword);
-        registerUser.setRole(UserRoleEnum.COMMON_USER.getValue());
-        registerUser.setNickname("未命名");
-        registerUser.setCreateTime(new Date());
-        registerUser.setUpdateTime(new Date());
+        UserDO registerUser = UserDO.builder()
+                .account(userAccount)
+                .password(encryptPassword)
+                .role(UserRoleEnum.COMMON_USER.getValue())
+                .nickname("未命名")
+                .createTime(new Date())
+                .updateTime(new Date())
+                .build();
 
         int result = userDAO.insert(registerUser);
         AssertUtil.isTrue(result > 0, ErrorCode.SYSTEM_ERROR, "用户注册失败");
@@ -197,17 +198,15 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户已存在");
         }
         // 转换为User类
-        UserDO user = new UserDO();
-        BeanUtils.copyProperties(userAddRequest, user);
-        user.setPassword(getEncryptPassword(userPassword));
-        if (StrUtil.isBlank(user.getRole())) {
-            user.setRole(UserRoleEnum.COMMON_USER.getValue());
-        }
-        if (StrUtil.isBlank(user.getNickname())) {
-            user.setNickname("未命名");
-        }
-        user.setCreateTime(new Date());
-        user.setUpdateTime(new Date());
+        UserDO user = UserDO.builder()
+                .account(userAddRequest.getAccount())
+                .password(getEncryptPassword(userPassword))
+                .nickname(StrUtil.isBlank(userAddRequest.getNickname()) ? "未命名" : userAddRequest.getNickname())
+                .profile(userAddRequest.getProfile())
+                .role(StrUtil.isBlank(userAddRequest.getRole()) ? UserRoleEnum.COMMON_USER.getValue() : userAddRequest.getRole())
+                .createTime(new Date())
+                .updateTime(new Date())
+                .build();
 
         // 插入到数据库
         try {
@@ -242,9 +241,17 @@ public class UserServiceImpl implements UserService {
         String userMobile = userUpdateRequest.getMobile();
         ValidationUtils.validateMobile(userMobile);
         // 转换对象
-        UserDO user = new UserDO();
-        BeanUtils.copyProperties(userUpdateRequest, user);
-        user.setUpdateTime(new Date());
+        UserDO user = UserDO.builder()
+                .id(userUpdateRequest.getId())
+                .account(userUpdateRequest.getAccount())
+                .nickname(userUpdateRequest.getNickname())
+                .email(userUpdateRequest.getEmail())
+                .mobile(userUpdateRequest.getMobile())
+                .avatar(userUpdateRequest.getAvatar())
+                .profile(userUpdateRequest.getProfile())
+                .role(userUpdateRequest.getRole())
+                .updateTime(new Date())
+                .build();
         // 更新
         int result = userDAO.updateById(user);
         if (result <= 0) {

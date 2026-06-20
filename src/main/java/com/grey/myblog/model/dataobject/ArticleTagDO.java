@@ -2,12 +2,18 @@ package com.grey.myblog.model.dataobject;
 
 import java.io.Serializable;
 import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 文章-标签关联表
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ArticleTagDO implements Serializable {
     /**
      * 主键ID

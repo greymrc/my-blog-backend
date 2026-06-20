@@ -65,8 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponse> listAllCategories() {
-        CategoryDO query = new CategoryDO();
-        List<CategoryDO> categoryList = categoryDAO.selectList(query);
+        List<CategoryDO> categoryList = categoryDAO.selectList(new CategoryDO());
         return categoryList.stream()
                 .map(this::convertToCategoryResponse)
                 .collect(Collectors.toList());
@@ -84,11 +83,12 @@ public class CategoryServiceImpl implements CategoryService {
         String categoryName = normalizeCategoryName(request.getName());
         checkCategoryNameUnique(categoryName, null);
 
-        CategoryDO category = new CategoryDO();
-        category.setName(categoryName);
-        category.setSortOrder(normalizeSortOrder(request.getSortOrder()));
-        category.setCreateTime(new Date());
-        category.setUpdateTime(new Date());
+        CategoryDO category = CategoryDO.builder()
+                .name(categoryName)
+                .sortOrder(normalizeSortOrder(request.getSortOrder()))
+                .createTime(new Date())
+                .updateTime(new Date())
+                .build();
 
         int result = categoryDAO.insert(category);
         if (result <= 0) {
@@ -104,11 +104,12 @@ public class CategoryServiceImpl implements CategoryService {
         String categoryName = normalizeCategoryName(request.getName());
         checkCategoryNameUnique(categoryName, existingCategory.getId());
 
-        CategoryDO category = new CategoryDO();
-        category.setId(existingCategory.getId());
-        category.setName(categoryName);
-        category.setSortOrder(normalizeSortOrder(request.getSortOrder()));
-        category.setUpdateTime(new Date());
+        CategoryDO category = CategoryDO.builder()
+                .id(existingCategory.getId())
+                .name(categoryName)
+                .sortOrder(normalizeSortOrder(request.getSortOrder()))
+                .updateTime(new Date())
+                .build();
 
         int result = categoryDAO.updateById(category);
         if (result <= 0) {

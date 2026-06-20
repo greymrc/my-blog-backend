@@ -2,7 +2,10 @@ package com.grey.myblog.model.dataobject;
 
 import java.io.Serializable;
 import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 网站信息表
@@ -10,6 +13,9 @@ import lombok.Data;
  * @author grey
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class WebsiteInfoDO implements Serializable {
 
     /**

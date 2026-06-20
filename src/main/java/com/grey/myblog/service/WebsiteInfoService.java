@@ -1,6 +1,5 @@
 package com.grey.myblog.service;
 
-import com.grey.myblog.model.dataobject.WebsiteInfoDO;
 import com.grey.myblog.model.request.WebsiteInfoUpdateRequest;
 import com.grey.myblog.model.response.WebsiteInfoResponse;
 

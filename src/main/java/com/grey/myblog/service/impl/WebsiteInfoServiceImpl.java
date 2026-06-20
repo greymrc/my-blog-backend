@@ -41,15 +41,16 @@ public class WebsiteInfoServiceImpl implements WebsiteInfoService {
         validateWebsiteInfoUpdateRequest(request);
         WebsiteInfoDO existingWebsiteInfo = getOrCreateWebsiteInfo();
 
-        WebsiteInfoDO websiteInfo = new WebsiteInfoDO();
-        websiteInfo.setId(existingWebsiteInfo.getId());
-        websiteInfo.setBloggerName(normalizeBloggerName(request.getBloggerName()));
-        websiteInfo.setAvatar(normalizeOptionalField(request.getAvatar()));
-        websiteInfo.setIntro(normalizeIntro(request.getIntro()));
-        websiteInfo.setGithubUrl(normalizeOptionalField(request.getGithubUrl()));
-        websiteInfo.setEmail(normalizeOptionalField(request.getEmail()));
-        websiteInfo.setAboutContent(normalizeOptionalField(request.getAboutContent()));
-        websiteInfo.setUpdateTime(new Date());
+        WebsiteInfoDO websiteInfo = WebsiteInfoDO.builder()
+                .id(existingWebsiteInfo.getId())
+                .bloggerName(normalizeBloggerName(request.getBloggerName()))
+                .avatar(normalizeOptionalField(request.getAvatar()))
+                .intro(normalizeIntro(request.getIntro()))
+                .githubUrl(normalizeOptionalField(request.getGithubUrl()))
+                .email(normalizeOptionalField(request.getEmail()))
+                .aboutContent(normalizeOptionalField(request.getAboutContent()))
+                .updateTime(new Date())
+                .build();
 
         int result = websiteInfoDAO.updateById(websiteInfo);
         if (result <= 0) {
@@ -67,10 +68,11 @@ public class WebsiteInfoServiceImpl implements WebsiteInfoService {
             return websiteInfo;
         }
 
-        WebsiteInfoDO defaultWebsiteInfo = new WebsiteInfoDO();
-        defaultWebsiteInfo.setBloggerName("Grey");
-        defaultWebsiteInfo.setUpdateTime(new Date());
-        defaultWebsiteInfo.setIsDeleted(0);
+        WebsiteInfoDO defaultWebsiteInfo = WebsiteInfoDO.builder()
+                .bloggerName("Grey")
+                .updateTime(new Date())
+                .isDeleted(0)
+                .build();
 
         int result = websiteInfoDAO.insert(defaultWebsiteInfo);
         if (result <= 0) {
