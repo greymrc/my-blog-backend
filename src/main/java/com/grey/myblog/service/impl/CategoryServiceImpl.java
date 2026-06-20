@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
-* @author grey
-* @description 针对表【category(文章分类表)】的数据库操作Service实现
-* @createDate 2026-01-15 11:49:53
-*/
+ * @author grey
+ * @description 针对表【category(文章分类表)】的数据库操作Service实现
+ * @createDate 2026-01-15 11:49:53
+ */
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryDAO, CategoryDO>
-    implements CategoryService {
+        implements CategoryService {
 
     private static final int MAX_CATEGORY_NAME_LENGTH = 50;
     private static final int DEFAULT_SORT_ORDER = 0;

@@ -4,7 +4,7 @@ package com.grey.myblog.controller.admin;
 import cn.hutool.core.util.ObjUtil;
 import com.grey.myblog.common.Result;
 import com.grey.myblog.exception.BusinessException;
-import com.grey.myblog.exception.ThrowUtil;
+import com.grey.myblog.exception.AssertUtil;
 import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.UserLoginRequest;
@@ -49,7 +49,7 @@ public class UserAdminController {
      */
     @PostMapping("/login")
     public Result<LoginUserResponse> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
-        if (ObjectUtils.isEmpty(userLoginRequest) || ObjectUtils.isEmpty(request) ) {
+        if (ObjectUtils.isEmpty(userLoginRequest) || ObjectUtils.isEmpty(request)) {
             return Result.fail(ErrorCode.PARAMS_ERROR, "登录请求体为空");
         }
         String userAccount = userLoginRequest.getAccount();
@@ -64,19 +64,19 @@ public class UserAdminController {
      */
     @PostMapping("/update")
     public Result<Boolean> userUpdate(@RequestBody UserUpdateRequest userUpdateRequest,
-                                            HttpServletRequest request) {
+                                      HttpServletRequest request) {
 
-        //校验非空
+        // 校验非空
         if (ObjectUtils.isEmpty(userUpdateRequest)) {
             return Result.fail(ErrorCode.PARAMS_ERROR);
         }
-        //获取当前登录用户
+        // 获取当前登录用户
         UserDO loginUser = userService.getLoginUser(request);
-        ThrowUtil.throwIf(ObjUtil.isEmpty(loginUser),ErrorCode.NOT_LOGIN_ERROR,"当前未登录");
+        AssertUtil.isFalse(ObjUtil.isEmpty(loginUser), ErrorCode.NOT_LOGIN_ERROR, "当前未登录");
 
 
-        //进行更新
-        boolean result = userService.updateUser(userUpdateRequest,loginUser);
+        // 进行更新
+        boolean result = userService.updateUser(userUpdateRequest, loginUser);
         return Result.success(result);
     }
 
@@ -86,7 +86,7 @@ public class UserAdminController {
      */
     @GetMapping("/getLoginUser")
     public Result<LoginUserResponse> getLoginUser(HttpServletRequest request) {
-        if (request==null){
+        if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         UserDO loginUser = userService.getLoginUser(request);
@@ -97,8 +97,8 @@ public class UserAdminController {
      * 用户登出
      */
     @GetMapping("/logout")
-    public Result<Boolean> userLogout(HttpServletRequest request){
-        if (request==null){
+    public Result<Boolean> userLogout(HttpServletRequest request) {
+        if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean result = userService.userLogout(request);

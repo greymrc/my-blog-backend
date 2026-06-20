@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
-* @author grey
-* @description 针对表【tag(标签表)】的数据库操作Service实现
-* @createDate 2026-01-15 11:49:57
-*/
+ * @author grey
+ * @description 针对表【tag(标签表)】的数据库操作Service实现
+ * @createDate 2026-01-15 11:49:57
+ */
 @Service
 public class TagServiceImpl extends ServiceImpl<TagDAO, TagDO>
-    implements TagService{
+        implements TagService {
 
     private static final int MAX_TAG_NAME_LENGTH = 50;
 
