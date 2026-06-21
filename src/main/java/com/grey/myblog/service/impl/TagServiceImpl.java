@@ -11,7 +11,7 @@ import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.TagAddRequest;
 import com.grey.myblog.model.request.TagPageListRequest;
 import com.grey.myblog.model.request.TagUpdateRequest;
-import com.grey.myblog.model.response.TagResponse;
+import com.grey.myblog.model.dto.TagDTO;
 import com.grey.myblog.service.ArticleTagService;
 import com.grey.myblog.service.TagService;
 import jakarta.annotation.Resource;
@@ -41,7 +41,7 @@ public class TagServiceImpl implements TagService {
     private ArticleTagService articleTagService;
 
     @Override
-    public PageResult<TagResponse> listTagPage(TagPageListRequest request) {
+    public PageResult<TagDTO> listTagPage(TagPageListRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
@@ -59,25 +59,25 @@ public class TagServiceImpl implements TagService {
         List<TagDO> tagList = tagDAO.selectTagPage(request);
         PageInfo<TagDO> pageInfo = new PageInfo<>(tagList);
 
-        List<TagResponse> tagVOList = tagList.stream()
-                .map(this::convertToTagResponse)
+        List<TagDTO> tagVOList = tagList.stream()
+                .map(this::convertToTagDTO)
                 .collect(Collectors.toList());
 
         return new PageResult<>(pageNum, pageSize, pageInfo.getTotal(), tagVOList);
     }
 
     @Override
-    public List<TagResponse> listAllTags() {
+    public List<TagDTO> listAllTags() {
         List<TagDO> tagList = tagDAO.selectList(new TagDO());
         return tagList.stream()
-                .map(this::convertToTagResponse)
+                .map(this::convertToTagDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public TagResponse getTagById(Long id) {
+    public TagDTO getTagById(Long id) {
         TagDO tag = getExistingTag(id);
-        return convertToTagResponse(tag);
+        return convertToTagDTO(tag);
     }
 
     @Override
@@ -212,8 +212,8 @@ public class TagServiceImpl implements TagService {
     /**
      * 转换为标签视图对象
      */
-    private TagResponse convertToTagResponse(TagDO tag) {
-        TagResponse tagVO = new TagResponse();
+    private TagDTO convertToTagDTO(TagDO tag) {
+        TagDTO tagVO = new TagDTO();
         BeanUtils.copyProperties(tag, tagVO);
         return tagVO;
     }

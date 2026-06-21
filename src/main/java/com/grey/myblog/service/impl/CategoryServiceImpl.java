@@ -11,7 +11,7 @@ import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.CategoryAddRequest;
 import com.grey.myblog.model.request.CategoryPageListRequest;
 import com.grey.myblog.model.request.CategoryUpdateRequest;
-import com.grey.myblog.model.response.CategoryResponse;
+import com.grey.myblog.model.dto.CategoryDTO;
 import com.grey.myblog.service.CategoryService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryDAO categoryDAO;
 
     @Override
-    public PageResult<CategoryResponse> listCategoryPage(CategoryPageListRequest request) {
+    public PageResult<CategoryDTO> listCategoryPage(CategoryPageListRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
@@ -56,25 +56,25 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryDO> categoryList = categoryDAO.selectCategoryPage(request);
         PageInfo<CategoryDO> pageInfo = new PageInfo<>(categoryList);
 
-        List<CategoryResponse> categoryResponseList = categoryList.stream()
-                .map(this::convertToCategoryResponse)
+        List<CategoryDTO> categoryResponseList = categoryList.stream()
+                .map(this::convertToCategoryDTO)
                 .collect(Collectors.toList());
 
         return new PageResult<>(pageNum, pageSize, pageInfo.getTotal(), categoryResponseList);
     }
 
     @Override
-    public List<CategoryResponse> listAllCategories() {
+    public List<CategoryDTO> listAllCategories() {
         List<CategoryDO> categoryList = categoryDAO.selectList(new CategoryDO());
         return categoryList.stream()
-                .map(this::convertToCategoryResponse)
+                .map(this::convertToCategoryDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public CategoryResponse getCategoryById(Long id) {
+    public CategoryDTO getCategoryById(Long id) {
         CategoryDO category = getExistingCategory(id);
-        return convertToCategoryResponse(category);
+        return convertToCategoryDTO(category);
     }
 
     @Override
@@ -209,8 +209,8 @@ public class CategoryServiceImpl implements CategoryService {
     /**
      * 转换为分类响应对象
      */
-    private CategoryResponse convertToCategoryResponse(CategoryDO category) {
-        CategoryResponse categoryResponse = new CategoryResponse();
+    private CategoryDTO convertToCategoryDTO(CategoryDO category) {
+        CategoryDTO categoryResponse = new CategoryDTO();
         BeanUtils.copyProperties(category, categoryResponse);
         return categoryResponse;
     }

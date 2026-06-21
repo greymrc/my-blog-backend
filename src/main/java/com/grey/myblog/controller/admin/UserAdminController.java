@@ -10,7 +10,7 @@ import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.UserLoginRequest;
 import com.grey.myblog.model.request.UserRegisterRequest;
 import com.grey.myblog.model.request.UserUpdateRequest;
-import com.grey.myblog.model.response.LoginUserResponse;
+import com.grey.myblog.model.dto.UserDTO;
 import com.grey.myblog.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,13 +48,13 @@ public class UserAdminController {
      * 用户登录
      */
     @PostMapping("/login")
-    public Result<LoginUserResponse> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public Result<UserDTO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (ObjectUtils.isEmpty(userLoginRequest) || ObjectUtils.isEmpty(request)) {
             return Result.fail(ErrorCode.PARAMS_ERROR, "登录请求体为空");
         }
         String userAccount = userLoginRequest.getAccount();
         String userPassword = userLoginRequest.getPassword();
-        LoginUserResponse loginUserVo = userService.userLogin(userAccount, userPassword, request);
+        UserDTO loginUserVo = userService.userLogin(userAccount, userPassword, request);
         return Result.success(loginUserVo);
     }
 
@@ -85,7 +85,7 @@ public class UserAdminController {
      * 获取当前登录用户信息
      */
     @GetMapping("/getLoginUser")
-    public Result<LoginUserResponse> getLoginUser(HttpServletRequest request) {
+    public Result<UserDTO> getLoginUser(HttpServletRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

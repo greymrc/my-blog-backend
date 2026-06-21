@@ -16,10 +16,11 @@ import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.ArticleAddRequest;
 import com.grey.myblog.model.request.ArticlePageListRequest;
 import com.grey.myblog.model.request.ArticleUpdateRequest;
-import com.grey.myblog.model.response.ArticleResponse;
-import com.grey.myblog.model.response.ArticleArchiveResponse;
-import com.grey.myblog.model.response.CategoryResponse;
-import com.grey.myblog.model.response.TagResponse;
+import com.grey.myblog.model.dto.ArticleDTO;
+import com.grey.myblog.model.dto.ArticleArchiveDTO;
+import com.grey.myblog.model.dto.CategoryDTO;
+import com.grey.myblog.model.dto.TagDTO;
+import com.grey.myblog.model.dto.AuthorDTO;
 import com.grey.myblog.service.ArticleService;
 import com.grey.myblog.service.ArticleTagService;
 import com.grey.myblog.service.CategoryService;
@@ -60,7 +61,7 @@ public class ArticleServiceImpl implements ArticleService {
     private UserService userService;
 
     @Override
-    public PageResult<ArticleResponse> listArticles(ArticlePageListRequest request) {
+    public PageResult<ArticleDTO> listArticles(ArticlePageListRequest request) {
         // 参数非空校验
         AssertUtil.isFalse(request == null, ErrorCode.PARAMS_ERROR);
 
@@ -73,15 +74,15 @@ public class ArticleServiceImpl implements ArticleService {
             List<ArticleDO> articleList = articleDAO.selectArticlePage(request);
             PageInfo<ArticleDO> pageInfo = new PageInfo<>(articleList);
 
-            // 转换为VO对象
-            List<ArticleResponse> articleVOList = articleList.stream()
-                    .map(this::convertToArticleResponse)
+            // 转换为DTO对象
+            List<ArticleDTO> articleDTOList = articleList.stream()
+                    .map(this::convertToArticleDTO)
                     .collect(Collectors.toList());
 
             // 填充关联数据（分类、作者、标签）
-            fillAssociatedData(articleVOList);
+            fillAssociatedData(articleDTOList);
 
-            return new PageResult<>(pageNum, pageSize, pageInfo.getTotal(), articleVOList);
+            return new PageResult<>(pageNum, pageSize, pageInfo.getTotal(), articleDTOList);
         } catch (Exception e) {
             log.error("分页查询文章列表异常：", e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "分页查询失败");
@@ -89,7 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleResponse getArticleById(Long id) {
+    public ArticleDTO getArticleById(Long id) {
         AssertUtil.isFalse(id == null || id <= 0, ErrorCode.PARAMS_ERROR, "文章ID无效");
 
         ArticleDO article = articleDAO.selectById(id);
@@ -100,22 +101,22 @@ public class ArticleServiceImpl implements ArticleService {
         // 增加阅读量
         incrementViewCount(id);
 
-        // 转换为VO并填充关联数据
-        ArticleResponse articleVO = convertToArticleResponse(article);
-        fillAssociatedData(Collections.singletonList(articleVO));
-        return articleVO;
+        // 转换为DTO并填充关联数据
+        ArticleDTO articleDTO = convertToArticleDTO(article);
+        fillAssociatedData(Collections.singletonList(articleDTO));
+        return articleDTO;
     }
 
     @Override
-    public Map<String, Map<String, List<ArticleArchiveResponse>>> getArticleArchive(Integer year, Integer month) {
+    public Map<String, Map<String, List<ArticleArchiveDTO>>> getArticleArchive(Integer year, Integer month) {
         // 查询公开文章，只查询必要字段
         List<ArticleDO> articles = articleDAO.selectByStatus(1, year, month);
 
         // 转换为轻量级归档VO，并保存articleId到categoryId的映射
         Map<Long, Long> articleCategoryMap = new HashMap<>();
-        List<ArticleArchiveResponse> archiveVOList = articles.stream()
+        List<ArticleArchiveDTO> archiveVOList = articles.stream()
                 .map(article -> {
-                    ArticleArchiveResponse archiveVO = convertToArticleArchiveResponse(article);
+                    ArticleArchiveDTO archiveVO = convertToArticleArchiveDTO(article);
                     if (article.getCategoryId() != null) {
                         articleCategoryMap.put(archiveVO.getId(), article.getCategoryId());
                     }
@@ -127,11 +128,11 @@ public class ArticleServiceImpl implements ArticleService {
         fillArchiveAssociatedData(archiveVOList, articleCategoryMap);
 
         // 按年月分组
-        Map<String, Map<String, List<ArticleArchiveResponse>>> archiveMap = new LinkedHashMap<>();
+        Map<String, Map<String, List<ArticleArchiveDTO>>> archiveMap = new LinkedHashMap<>();
         SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
         SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
 
-        for (ArticleArchiveResponse archiveVO : archiveVOList) {
+        for (ArticleArchiveDTO archiveVO : archiveVOList) {
             if (archiveVO.getCreateTime() == null) {
                 continue;
             }
@@ -255,12 +256,12 @@ public class ArticleServiceImpl implements ArticleService {
     /**
      * 将文章实体转换为VO对象
      */
-    private ArticleResponse convertToArticleResponse(ArticleDO article) {
+    private ArticleDTO convertToArticleDTO(ArticleDO article) {
         if (article == null) {
             return null;
         }
 
-        ArticleResponse articleVO = new ArticleResponse();
+        ArticleDTO articleVO = new ArticleDTO();
         BeanUtils.copyProperties(article, articleVO);
 
         if (article.getArticleContent() != null) {
@@ -273,46 +274,46 @@ public class ArticleServiceImpl implements ArticleService {
     /**
      * 批量填充文章关联数据
      */
-    private void fillAssociatedData(List<ArticleResponse> articleVOList) {
+    private void fillAssociatedData(List<ArticleDTO> articleVOList) {
         if (articleVOList == null || articleVOList.isEmpty()) {
             return;
         }
 
         Set<Long> categoryIds = articleVOList.stream()
-                .map(ArticleResponse::getCategoryId)
+                .map(ArticleDTO::getCategoryId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
         Set<Long> authorIds = articleVOList.stream()
-                .map(ArticleResponse::getAuthorId)
+                .map(ArticleDTO::getAuthorId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
         List<Long> articleIds = articleVOList.stream()
-                .map(ArticleResponse::getId)
+                .map(ArticleDTO::getId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         // 批量查询分类信息
-        Map<Long, CategoryResponse> categoryMap = new HashMap<>();
+        Map<Long, CategoryDTO> categoryMap = new HashMap<>();
         if (!categoryIds.isEmpty()) {
             List<CategoryDO> categories = categoryService.listByIds(categoryIds);
             categoryMap = categories.stream()
-                    .map(this::convertToCategoryResponse)
-                    .collect(Collectors.toMap(CategoryResponse::getId, vo -> vo));
+                    .map(this::convertToCategoryDTO)
+                    .collect(Collectors.toMap(CategoryDTO::getId, vo -> vo));
         }
 
         // 批量查询作者信息
-        Map<Long, ArticleResponse.AuthorResponse> authorMap = new HashMap<>();
+        Map<Long, AuthorDTO> authorMap = new HashMap<>();
         if (!authorIds.isEmpty()) {
             List<UserDO> users = userService.listByIds(authorIds);
             authorMap = users.stream()
-                    .map(this::convertToAuthorVO)
-                    .collect(Collectors.toMap(ArticleResponse.AuthorResponse::getId, vo -> vo));
+                    .map(this::convertToAuthorDTO)
+                    .collect(Collectors.toMap(AuthorDTO::getId, vo -> vo));
         }
 
         // 批量查询文章标签关联关系
-        Map<Long, List<TagResponse>> articleTagMap = new HashMap<>();
+        Map<Long, List<TagDTO>> articleTagMap = new HashMap<>();
         if (!articleIds.isEmpty()) {
             List<ArticleTagDO> articleTags = articleTagService.listByArticleIds(articleIds);
 
@@ -322,12 +323,12 @@ public class ArticleServiceImpl implements ArticleService {
 
             if (!tagIds.isEmpty()) {
                 List<TagDO> tags = tagService.listByIds(tagIds);
-                Map<Long, TagResponse> tagMap = tags.stream()
-                        .map(this::convertToTagResponse)
-                        .collect(Collectors.toMap(TagResponse::getId, vo -> vo));
+                Map<Long, TagDTO> tagMap = tags.stream()
+                        .map(this::convertToTagDTO)
+                        .collect(Collectors.toMap(TagDTO::getId, vo -> vo));
 
                 for (ArticleTagDO articleTag : articleTags) {
-                    TagResponse tagVO = tagMap.get(articleTag.getTagId());
+                    TagDTO tagVO = tagMap.get(articleTag.getTagId());
                     if (tagVO != null) {
                         articleTagMap.computeIfAbsent(articleTag.getArticleId(), k -> new ArrayList<>())
                                 .add(tagVO);
@@ -337,7 +338,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         // 填充关联数据
-        for (ArticleResponse articleVO : articleVOList) {
+        for (ArticleDTO articleVO : articleVOList) {
             if (articleVO.getCategoryId() != null) {
                 articleVO.setCategory(categoryMap.get(articleVO.getCategoryId()));
             }
@@ -346,7 +347,7 @@ public class ArticleServiceImpl implements ArticleService {
                 articleVO.setAuthor(authorMap.get(articleVO.getAuthorId()));
             }
 
-            List<TagResponse> tags = articleTagMap.get(articleVO.getId());
+            List<TagDTO> tags = articleTagMap.get(articleVO.getId());
             articleVO.setTags(tags != null ? tags : new ArrayList<>());
         }
     }
@@ -411,51 +412,51 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     /**
-     * 转换为CategoryResponse
+     * 转换为CategoryDTO
      */
-    private CategoryResponse convertToCategoryResponse(CategoryDO category) {
+    private CategoryDTO convertToCategoryDTO(CategoryDO category) {
         if (category == null) {
             return null;
         }
-        CategoryResponse categoryVO = new CategoryResponse();
+        CategoryDTO categoryVO = new CategoryDTO();
         BeanUtils.copyProperties(category, categoryVO);
         return categoryVO;
     }
 
     /**
-     * 转换为TagResponse
+     * 转换为TagDTO
      */
-    private TagResponse convertToTagResponse(TagDO tag) {
+    private TagDTO convertToTagDTO(TagDO tag) {
         if (tag == null) {
             return null;
         }
-        TagResponse tagVO = new TagResponse();
+        TagDTO tagVO = new TagDTO();
         BeanUtils.copyProperties(tag, tagVO);
         return tagVO;
     }
 
     /**
-     * 转换为AuthorVO
+     * 转换为AuthorDTO
      */
-    private ArticleResponse.AuthorResponse convertToAuthorVO(UserDO user) {
+    private AuthorDTO convertToAuthorDTO(UserDO user) {
         if (user == null) {
             return null;
         }
-        ArticleResponse.AuthorResponse authorVO = new ArticleResponse.AuthorResponse();
-        authorVO.setId(user.getId());
-        authorVO.setNickname(user.getNickname());
-        authorVO.setAvatar(user.getAvatar());
-        return authorVO;
+        AuthorDTO authorDTO = new AuthorDTO();
+        authorDTO.setId(user.getId());
+        authorDTO.setNickname(user.getNickname());
+        authorDTO.setAvatar(user.getAvatar());
+        return authorDTO;
     }
 
     /**
      * 将文章实体转换为归档VO对象
      */
-    private ArticleArchiveResponse convertToArticleArchiveResponse(ArticleDO article) {
+    private ArticleArchiveDTO convertToArticleArchiveDTO(ArticleDO article) {
         if (article == null) {
             return null;
         }
-        ArticleArchiveResponse archiveVO = new ArticleArchiveResponse();
+        ArticleArchiveDTO archiveVO = new ArticleArchiveDTO();
         archiveVO.setId(article.getId());
         archiveVO.setArticleTitle(article.getArticleTitle());
         archiveVO.setCreateTime(article.getCreateTime());
@@ -465,27 +466,27 @@ public class ArticleServiceImpl implements ArticleService {
     /**
      * 批量填充归档文章的关联数据
      */
-    private void fillArchiveAssociatedData(List<ArticleArchiveResponse> archiveVOList, Map<Long, Long> articleCategoryMap) {
+    private void fillArchiveAssociatedData(List<ArticleArchiveDTO> archiveVOList, Map<Long, Long> articleCategoryMap) {
         if (archiveVOList == null || archiveVOList.isEmpty()) {
             return;
         }
 
         Set<Long> categoryIds = new HashSet<>(articleCategoryMap.values());
 
-        Map<Long, CategoryResponse> categoryMap = new HashMap<>();
+        Map<Long, CategoryDTO> categoryMap = new HashMap<>();
         if (!categoryIds.isEmpty()) {
             List<CategoryDO> categories = categoryService.listByIds(categoryIds);
             categoryMap = categories.stream()
-                    .map(this::convertToCategoryResponse)
-                    .collect(Collectors.toMap(CategoryResponse::getId, vo -> vo));
+                    .map(this::convertToCategoryDTO)
+                    .collect(Collectors.toMap(CategoryDTO::getId, vo -> vo));
         }
 
         List<Long> articleIds = archiveVOList.stream()
-                .map(ArticleArchiveResponse::getId)
+                .map(ArticleArchiveDTO::getId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        Map<Long, List<TagResponse>> articleTagMap = new HashMap<>();
+        Map<Long, List<TagDTO>> articleTagMap = new HashMap<>();
         if (!articleIds.isEmpty()) {
             List<ArticleTagDO> articleTags = articleTagService.listByArticleIds(articleIds);
 
@@ -495,12 +496,12 @@ public class ArticleServiceImpl implements ArticleService {
 
             if (!tagIds.isEmpty()) {
                 List<TagDO> tags = tagService.listByIds(tagIds);
-                Map<Long, TagResponse> tagMap = tags.stream()
-                        .map(this::convertToTagResponse)
-                        .collect(Collectors.toMap(TagResponse::getId, vo -> vo));
+                Map<Long, TagDTO> tagMap = tags.stream()
+                        .map(this::convertToTagDTO)
+                        .collect(Collectors.toMap(TagDTO::getId, vo -> vo));
 
                 for (ArticleTagDO articleTag : articleTags) {
-                    TagResponse tagVO = tagMap.get(articleTag.getTagId());
+                    TagDTO tagVO = tagMap.get(articleTag.getTagId());
                     if (tagVO != null) {
                         articleTagMap.computeIfAbsent(articleTag.getArticleId(), k -> new ArrayList<>())
                                 .add(tagVO);
@@ -509,13 +510,13 @@ public class ArticleServiceImpl implements ArticleService {
             }
         }
 
-        for (ArticleArchiveResponse archiveVO : archiveVOList) {
+        for (ArticleArchiveDTO archiveVO : archiveVOList) {
             Long categoryId = articleCategoryMap.get(archiveVO.getId());
             if (categoryId != null) {
                 archiveVO.setCategory(categoryMap.get(categoryId));
             }
 
-            List<TagResponse> tags = articleTagMap.get(archiveVO.getId());
+            List<TagDTO> tags = articleTagMap.get(archiveVO.getId());
             archiveVO.setTags(tags != null ? tags : new ArrayList<>());
         }
     }

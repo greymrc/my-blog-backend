@@ -14,8 +14,7 @@ import com.grey.myblog.model.enums.UserRoleEnum;
 import com.grey.myblog.model.request.UserAddRequest;
 import com.grey.myblog.model.request.UserPageListRequest;
 import com.grey.myblog.model.request.UserUpdateRequest;
-import com.grey.myblog.model.response.LoginUserResponse;
-import com.grey.myblog.model.response.UserResponse;
+import com.grey.myblog.model.dto.UserDTO;
 import com.grey.myblog.service.UserService;
 import com.grey.myblog.utils.ValidationUtils;
 import jakarta.annotation.Resource;
@@ -110,7 +109,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public LoginUserResponse userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public UserDTO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 参数校验
         if (StrUtil.hasBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -133,7 +132,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 用户数据脱敏
-        LoginUserResponse loginUserVo = getLoginUserVo(loginUser);
+        UserDTO loginUserVo = getLoginUserVo(loginUser);
         // 用户登录态保存
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATUS, loginUserVo);
         // 返回用户脱敏信息
@@ -141,8 +140,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public LoginUserResponse getLoginUserVo(UserDO user) {
-        LoginUserResponse loginUserVo = new LoginUserResponse();
+    public UserDTO getLoginUserVo(UserDO user) {
+        UserDTO loginUserVo = new UserDTO();
         BeanUtils.copyProperties(user, loginUserVo);
         return loginUserVo;
     }
@@ -156,11 +155,11 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
         }
 
-        if (!(userObj instanceof LoginUserResponse)) {
+        if (!(userObj instanceof UserDTO)) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录状态异常，请重新登录");
         }
 
-        LoginUserResponse loginUser = (LoginUserResponse) userObj;
+        UserDTO loginUser = (UserDTO) userObj;
 
         if (loginUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "登录信息不完整");
@@ -261,7 +260,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResult<UserResponse> userPageList(UserPageListRequest userPageListRequest) {
+    public PageResult<UserDTO> userPageList(UserPageListRequest userPageListRequest) {
         // 参数校验
         long pageNum = userPageListRequest.getPageNum();
         long pageSize = userPageListRequest.getPageSize();
@@ -277,7 +276,7 @@ public class UserServiceImpl implements UserService {
             List<UserDO> userList = userDAO.selectUserPage(userPageListRequest);
             PageInfo<UserDO> pageInfo = new PageInfo<>(userList);
 
-            List<UserResponse> userVOList = userList.stream()
+            List<UserDTO> userVOList = userList.stream()
                     .map(this::getUserVo)
                     .collect(Collectors.toList());
 
@@ -289,11 +288,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserVo(UserDO user) {
+    public UserDTO getUserVo(UserDO user) {
         if (user == null) {
-            return new UserResponse();
+            return new UserDTO();
         }
-        UserResponse userVo = new UserResponse();
+        UserDTO userVo = new UserDTO();
         BeanUtils.copyProperties(user, userVo);
         return userVo;
     }

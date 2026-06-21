@@ -1,16 +1,22 @@
-package com.grey.myblog.model.response;
+package com.grey.myblog.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 /**
- * 分类响应对象
+ * 分类 DTO
  *
  * @author grey
  */
 @Data
-public class CategoryResponse implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CategoryDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

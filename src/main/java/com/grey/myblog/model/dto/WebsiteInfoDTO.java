@@ -1,17 +1,23 @@
-package com.grey.myblog.model.response;
+package com.grey.myblog.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 网站信息响应对象
+ * 网站信息 DTO
  *
  * @author grey
  */
 @Data
-public class WebsiteInfoResponse implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class WebsiteInfoDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

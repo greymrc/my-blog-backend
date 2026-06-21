@@ -1,19 +1,24 @@
-package com.grey.myblog.model.response;
+package com.grey.myblog.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 /**
- * 文章归档响应对象（轻量级）
- * 用于归档页面展示，只包含必要字段
+ * 文章归档 DTO（轻量级）
  *
  * @author grey
  */
 @Data
-public class ArticleArchiveResponse implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ArticleArchiveDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -34,10 +39,10 @@ public class ArticleArchiveResponse implements Serializable {
     /**
      * 分类信息
      */
-    private CategoryResponse category;
+    private CategoryDTO category;
 
     /**
-     * 标签列表（只包含标签名称）
+     * 标签列表
      */
-    private List<TagResponse> tags;
+    private List<TagDTO> tags;
 }

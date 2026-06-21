@@ -8,7 +8,7 @@ import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.CategoryAddRequest;
 import com.grey.myblog.model.request.CategoryPageListRequest;
 import com.grey.myblog.model.request.CategoryUpdateRequest;
-import com.grey.myblog.model.response.CategoryResponse;
+import com.grey.myblog.model.dto.CategoryDTO;
 import com.grey.myblog.service.CategoryService;
 import jakarta.annotation.Resource;
 import org.springframework.util.ObjectUtils;
@@ -33,7 +33,7 @@ public class CategoryAdminController {
      */
     @PostMapping("/list")
     @AuthCheck(mustRole = "admin")
-    public Result<PageResult<CategoryResponse>> listCategoryPage(@RequestBody(required = false) CategoryPageListRequest request) {
+    public Result<PageResult<CategoryDTO>> listCategoryPage(@RequestBody(required = false) CategoryPageListRequest request) {
         if (request == null) {
             request = new CategoryPageListRequest();
         }
@@ -45,7 +45,7 @@ public class CategoryAdminController {
      */
     @GetMapping("/all")
     @AuthCheck(mustRole = "admin")
-    public Result<List<CategoryResponse>> listAllCategories() {
+    public Result<List<CategoryDTO>> listAllCategories() {
         return Result.success(categoryService.listAllCategories());
     }
 
@@ -54,7 +54,7 @@ public class CategoryAdminController {
      */
     @GetMapping("/{id}")
     @AuthCheck(mustRole = "admin")
-    public Result<CategoryResponse> getCategoryById(@PathVariable Long id) {
+    public Result<CategoryDTO> getCategoryById(@PathVariable Long id) {
         if (id == null || id <= 0) {
             return Result.fail(ErrorCode.PARAMS_ERROR, "分类ID非法");
         }

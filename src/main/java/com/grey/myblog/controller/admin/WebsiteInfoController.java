@@ -1,7 +1,7 @@
 package com.grey.myblog.controller.admin;
 
 import com.grey.myblog.common.Result;
-import com.grey.myblog.model.response.WebsiteInfoResponse;
+import com.grey.myblog.model.dto.WebsiteInfoDTO;
 import com.grey.myblog.service.WebsiteInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +24,7 @@ public class WebsiteInfoController {
      * 获取网站信息
      */
     @GetMapping("/get")
-    public Result<WebsiteInfoResponse> getWebsiteInfo() {
+    public Result<WebsiteInfoDTO> getWebsiteInfo() {
         return Result.success(websiteInfoService.getWebsiteInfo());
     }
 }

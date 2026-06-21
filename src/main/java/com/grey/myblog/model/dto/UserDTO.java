@@ -1,19 +1,27 @@
-package com.grey.myblog.model.response;
+package com.grey.myblog.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户响应对象
+ * 用户 DTO
  *
  * @author grey
  */
 @Data
-public class UserResponse implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     /**
-     * 主键ID
+     * 用户ID
      */
     private Long id;
 
@@ -48,7 +56,7 @@ public class UserResponse implements Serializable {
     private String profile;
 
     /**
-     * 用户角色：user/admin
+     * 用户角色
      */
     private String role;
 
@@ -61,6 +69,4 @@ public class UserResponse implements Serializable {
      * 更新时间
      */
     private Date updateTime;
-
-    private static final long serialVersionUID = 1L;
 }

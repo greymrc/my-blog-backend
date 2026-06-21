@@ -1,18 +1,24 @@
-package com.grey.myblog.model.response;
+package com.grey.myblog.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 /**
- * 文章响应对象
+ * 文章 DTO
  *
  * @author grey
  */
 @Data
-public class ArticleResponse implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ArticleDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -66,55 +72,32 @@ public class ArticleResponse implements Serializable {
     private Date updateTime;
 
     /**
-     * 所属分类ID（用于关联查询）
+     * 所属分类ID
      */
     private Long categoryId;
 
     /**
-     * 作者ID（用于关联查询）
+     * 作者ID
      */
     private Long authorId;
 
     /**
      * 分类信息
      */
-    private CategoryResponse category;
+    private CategoryDTO category;
 
     /**
-     * 作者信息（简化版：id、nickname、avatar）
+     * 作者信息
      */
-    private AuthorResponse author;
+    private AuthorDTO author;
 
     /**
      * 标签列表
      */
-    private List<TagResponse> tags;
+    private List<TagDTO> tags;
 
     /**
      * 字数统计
      */
     private Integer wordCount;
-
-    /**
-     * 作者简化信息
-     */
-    @Data
-    public static class AuthorResponse implements Serializable {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * 作者ID
-         */
-        private Long id;
-
-        /**
-         * 作者昵称
-         */
-        private String nickname;
-
-        /**
-         * 作者头像
-         */
-        private String avatar;
-    }
 }

@@ -1,7 +1,7 @@
 package com.grey.myblog.service;
 
 import com.grey.myblog.model.request.WebsiteInfoUpdateRequest;
-import com.grey.myblog.model.response.WebsiteInfoResponse;
+import com.grey.myblog.model.dto.WebsiteInfoDTO;
 
 /**
  * 网站信息服务接口
@@ -15,7 +15,7 @@ public interface WebsiteInfoService {
      *
      * @return 网站信息
      */
-    WebsiteInfoResponse getWebsiteInfo();
+    WebsiteInfoDTO getWebsiteInfo();
 
     /**
      * 更新网站信息

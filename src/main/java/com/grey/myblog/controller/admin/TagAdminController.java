@@ -8,7 +8,7 @@ import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.TagAddRequest;
 import com.grey.myblog.model.request.TagPageListRequest;
 import com.grey.myblog.model.request.TagUpdateRequest;
-import com.grey.myblog.model.response.TagResponse;
+import com.grey.myblog.model.dto.TagDTO;
 import com.grey.myblog.service.TagService;
 import jakarta.annotation.Resource;
 import org.springframework.util.ObjectUtils;
@@ -33,7 +33,7 @@ public class TagAdminController {
      */
     @PostMapping("/list")
     @AuthCheck(mustRole = "admin")
-    public Result<PageResult<TagResponse>> listTagPage(@RequestBody(required = false) TagPageListRequest request) {
+    public Result<PageResult<TagDTO>> listTagPage(@RequestBody(required = false) TagPageListRequest request) {
         if (request == null) {
             request = new TagPageListRequest();
         }
@@ -45,7 +45,7 @@ public class TagAdminController {
      */
     @GetMapping("/all")
     @AuthCheck(mustRole = "admin")
-    public Result<List<TagResponse>> listAllTags() {
+    public Result<List<TagDTO>> listAllTags() {
         return Result.success(tagService.listAllTags());
     }
 
@@ -54,7 +54,7 @@ public class TagAdminController {
      */
     @GetMapping("/{id}")
     @AuthCheck(mustRole = "admin")
-    public Result<TagResponse> getTagById(@PathVariable Long id) {
+    public Result<TagDTO> getTagById(@PathVariable Long id) {
         if (id == null || id <= 0) {
             return Result.fail(ErrorCode.PARAMS_ERROR, "标签ID非法");
         }

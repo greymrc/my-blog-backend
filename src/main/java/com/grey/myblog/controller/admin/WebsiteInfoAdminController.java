@@ -4,7 +4,7 @@ import com.grey.myblog.annotation.AuthCheck;
 import com.grey.myblog.common.Result;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.WebsiteInfoUpdateRequest;
-import com.grey.myblog.model.response.WebsiteInfoResponse;
+import com.grey.myblog.model.dto.WebsiteInfoDTO;
 import com.grey.myblog.service.WebsiteInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.util.ObjectUtils;
@@ -31,7 +31,7 @@ public class WebsiteInfoAdminController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = "admin")
-    public Result<WebsiteInfoResponse> getWebsiteInfo() {
+    public Result<WebsiteInfoDTO> getWebsiteInfo() {
         return Result.success(websiteInfoService.getWebsiteInfo());
     }
 

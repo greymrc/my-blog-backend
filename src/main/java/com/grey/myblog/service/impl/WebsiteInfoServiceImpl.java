@@ -6,7 +6,7 @@ import com.grey.myblog.exception.BusinessException;
 import com.grey.myblog.model.dataobject.WebsiteInfoDO;
 import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.WebsiteInfoUpdateRequest;
-import com.grey.myblog.model.response.WebsiteInfoResponse;
+import com.grey.myblog.model.dto.WebsiteInfoDTO;
 import com.grey.myblog.service.WebsiteInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -30,9 +30,9 @@ public class WebsiteInfoServiceImpl implements WebsiteInfoService {
     private WebsiteInfoDAO websiteInfoDAO;
 
     @Override
-    public WebsiteInfoResponse getWebsiteInfo() {
+    public WebsiteInfoDTO getWebsiteInfo() {
         WebsiteInfoDO websiteInfo = getOrCreateWebsiteInfo();
-        return convertToWebsiteInfoResponse(websiteInfo);
+        return convertToWebsiteInfoDTO(websiteInfo);
     }
 
     @Override
@@ -106,8 +106,8 @@ public class WebsiteInfoServiceImpl implements WebsiteInfoService {
     /**
      * 转换为网站信息响应对象
      */
-    private WebsiteInfoResponse convertToWebsiteInfoResponse(WebsiteInfoDO websiteInfo) {
-        WebsiteInfoResponse response = new WebsiteInfoResponse();
+    private WebsiteInfoDTO convertToWebsiteInfoDTO(WebsiteInfoDO websiteInfo) {
+        WebsiteInfoDTO response = new WebsiteInfoDTO();
         BeanUtils.copyProperties(websiteInfo, response);
         return response;
     }

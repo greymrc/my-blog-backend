@@ -10,8 +10,8 @@ import com.grey.myblog.model.enums.ErrorCode;
 import com.grey.myblog.model.request.ArticleAddRequest;
 import com.grey.myblog.model.request.ArticlePageListRequest;
 import com.grey.myblog.model.request.ArticleUpdateRequest;
-import com.grey.myblog.model.response.ArticleResponse;
-import com.grey.myblog.model.response.ArticleArchiveResponse;
+import com.grey.myblog.model.dto.ArticleDTO;
+import com.grey.myblog.model.dto.ArticleArchiveDTO;
 import com.grey.myblog.service.ArticleService;
 import com.grey.myblog.service.UserService;
 import com.grey.myblog.model.PageResult;
@@ -42,12 +42,12 @@ public class ArticleAdminController {
      * 文章列表（主页）（无正文，只有摘要）
      */
     @PostMapping("/list")
-    public Result<PageResult<ArticleResponse>> listArticles(@RequestBody ArticlePageListRequest request) {
+    public Result<PageResult<ArticleDTO>> listArticles(@RequestBody ArticlePageListRequest request) {
         // 请求参数为空时使用默认值，避免空指针异常
         if (request == null) {
             request = new ArticlePageListRequest();
         }
-        PageResult<ArticleResponse> articlePage = articleService.listArticles(request);
+        PageResult<ArticleDTO> articlePage = articleService.listArticles(request);
         return Result.success(articlePage);
     }
 
@@ -57,11 +57,11 @@ public class ArticleAdminController {
      * 访问时自动增加阅读量
      */
     @GetMapping("/{id}")
-    public Result<ArticleResponse> getArticleById(@PathVariable Long id) {
+    public Result<ArticleDTO> getArticleById(@PathVariable Long id) {
         if (id == null || id <= 0) {
             return Result.fail(ErrorCode.PARAMS_ERROR, "文章ID无效");
         }
-        ArticleResponse articleVO = articleService.getArticleById(id);
+        ArticleDTO articleVO = articleService.getArticleById(id);
         return Result.success(articleVO);
     }
 
@@ -72,10 +72,10 @@ public class ArticleAdminController {
      * 返回格式：Map<年份, Map<月份, List<文章归档VO>>>z
      */
     @GetMapping("/archive")
-    public Result<Map<String, Map<String, List<ArticleArchiveResponse>>>> getArticleArchive(
+    public Result<Map<String, Map<String, List<ArticleArchiveDTO>>>> getArticleArchive(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month) {
-        Map<String, Map<String, List<ArticleArchiveResponse>>> archiveMap = articleService.getArticleArchive(year, month);
+        Map<String, Map<String, List<ArticleArchiveDTO>>> archiveMap = articleService.getArticleArchive(year, month);
         return Result.success(archiveMap);
     }
 
