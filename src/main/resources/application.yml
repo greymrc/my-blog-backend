@@ -15,12 +15,12 @@ spring:
     # store-type: redis
     # 30 天过期
     timeout: 2592000
-## mysql 配置
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://192.168.83.123:3306/myblog
-#    username: root
-#    password: 23321212
+  # mysql 配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/blog
+    username: root
+    password: your_password
 
 # redis 配置
 # todo 需配置Redis   对齐spring：下
@@ -52,6 +52,14 @@ pagehelper:
   helper-dialect: mysql
   reasonable: true
   support-methods-arguments: true
+
+# MinIO 对象存储配置
+# todo 需替换为你的 MinIO 服务配置
+minio:
+  endpoint: http://localhost:9000
+  accessKey: your_access_key
+  secretKey: your_secret_key
+  bucketName: blog
 
 # springdoc-openapi  knife4j 配置
 springdoc:
