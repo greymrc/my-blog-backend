@@ -29,17 +29,17 @@ public class ArticleDTO implements Serializable {
     /**
      * 文章标题
      */
-    private String articleTitle;
+    private String title;
 
     /**
      * 文章内容（详情接口返回）
      */
-    private String articleContent;
+    private String content;
 
     /**
      * 文章摘要
      */
-    private String articleExcerpt;
+    private String excerpt;
 
     /**
      * 封面图片URL

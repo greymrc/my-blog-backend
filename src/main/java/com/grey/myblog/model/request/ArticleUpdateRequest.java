@@ -22,17 +22,17 @@ public class ArticleUpdateRequest implements Serializable {
     /**
      * 文章标题（必填）
      */
-    private String articleTitle;
+    private String title;
 
     /**
      * 文章内容（必填）
      */
-    private String articleContent;
+    private String content;
 
     /**
      * 文章摘要（可选）
      */
-    private String articleExcerpt;
+    private String excerpt;
 
     /**
      * 封面图片URL（可选）

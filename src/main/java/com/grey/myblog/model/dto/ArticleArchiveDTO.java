@@ -29,7 +29,7 @@ public class ArticleArchiveDTO implements Serializable {
     /**
      * 文章标题
      */
-    private String articleTitle;
+    private String title;
 
     /**
      * 创建时间

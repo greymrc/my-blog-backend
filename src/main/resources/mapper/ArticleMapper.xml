@@ -6,9 +6,9 @@
 
     <resultMap id="BaseResultMap" type="com.grey.myblog.model.dataobject.ArticleDO">
         <id property="id" column="id"/>
-        <result property="articleTitle" column="article_title"/>
-        <result property="articleContent" column="article_content"/>
-        <result property="articleExcerpt" column="article_excerpt"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="excerpt" column="excerpt"/>
         <result property="coverImage" column="cover_image"/>
         <result property="sortOrder" column="sort_order"/>
         <result property="viewCount" column="view_count"/>
@@ -21,17 +21,17 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, article_title, article_content, article_excerpt, cover_image, sort_order,
+        id, title, content, excerpt, cover_image, sort_order,
         view_count, category_id, author_id, status, create_time, update_time, is_deleted
     </sql>
 
     <!-- 插入文章 -->
     <insert id="insert" parameterType="com.grey.myblog.model.dataobject.ArticleDO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO article (
-            article_title, article_content, article_excerpt, cover_image, sort_order,
+            title, content, excerpt, cover_image, sort_order,
             view_count, category_id, author_id, status, create_time, update_time, is_deleted
         ) VALUES (
-            #{articleTitle}, #{articleContent}, #{articleExcerpt}, #{coverImage}, #{sortOrder},
+            #{title}, #{content}, #{excerpt}, #{coverImage}, #{sortOrder},
             #{viewCount}, #{categoryId}, #{authorId}, #{status}, #{createTime}, #{updateTime}, 0
         )
     </insert>
@@ -39,12 +39,12 @@
     <!-- 批量插入文章 -->
     <insert id="insertBatch" parameterType="java.util.List">
         INSERT INTO article (
-            article_title, article_content, article_excerpt, cover_image, sort_order,
+            title, content, excerpt, cover_image, sort_order,
             view_count, category_id, author_id, status, create_time, update_time, is_deleted
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
-                #{item.articleTitle}, #{item.articleContent}, #{item.articleExcerpt}, #{item.coverImage}, #{item.sortOrder},
+                #{item.title}, #{item.content}, #{item.excerpt}, #{item.coverImage}, #{item.sortOrder},
                 #{item.viewCount}, #{item.categoryId}, #{item.authorId}, #{item.status}, #{item.createTime}, #{item.updateTime}, 0
             )
         </foreach>
@@ -54,9 +54,9 @@
     <update id="updateById" parameterType="com.grey.myblog.model.dataobject.ArticleDO">
         UPDATE article
         <set>
-            <if test="articleTitle != null">article_title = #{articleTitle},</if>
-            <if test="articleContent != null">article_content = #{articleContent},</if>
-            <if test="articleExcerpt != null">article_excerpt = #{articleExcerpt},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="excerpt != null">excerpt = #{excerpt},</if>
             <if test="coverImage != null">cover_image = #{coverImage},</if>
             <if test="sortOrder != null">sort_order = #{sortOrder},</if>
             <if test="viewCount != null">view_count = #{viewCount},</if>
@@ -97,7 +97,7 @@
         FROM article
         <where>
             is_deleted = 0
-            <if test="article.articleTitle != null">AND article_title LIKE CONCAT('%', #{article.articleTitle}, '%')</if>
+            <if test="article.title != null">AND title LIKE CONCAT('%', #{article.title}, '%')</if>
             <if test="article.categoryId != null">AND category_id = #{article.categoryId}</if>
             <if test="article.authorId != null">AND author_id = #{article.authorId}</if>
             <if test="article.status != null">AND status = #{article.status}</if>
@@ -111,7 +111,7 @@
         FROM article
         <where>
             is_deleted = 0
-            <if test="article.articleTitle != null">AND article_title LIKE CONCAT('%', #{article.articleTitle}, '%')</if>
+            <if test="article.title != null">AND title LIKE CONCAT('%', #{article.title}, '%')</if>
             <if test="article.categoryId != null">AND category_id = #{article.categoryId}</if>
             <if test="article.authorId != null">AND author_id = #{article.authorId}</if>
             <if test="article.status != null">AND status = #{article.status}</if>
@@ -122,8 +122,8 @@
     <select id="selectArticlePage" resultMap="BaseResultMap">
         SELECT
             id,
-            article_title,
-            article_excerpt,
+            title,
+            excerpt,
             cover_image,
             sort_order,
             view_count,
@@ -193,7 +193,7 @@
 
     <!-- 根据状态查询文章列表（用于归档） -->
     <select id="selectByStatus" resultMap="BaseResultMap">
-        SELECT id, article_title, create_time, category_id
+        SELECT id, title, create_time, category_id
         FROM article
         WHERE is_deleted = 0 AND status = #{status}
         <if test="year != null">

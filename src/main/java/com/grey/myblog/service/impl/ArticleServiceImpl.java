@@ -154,9 +154,9 @@ public class ArticleServiceImpl implements ArticleService {
         validateArticleRequest(request);
 
         ArticleDO article = ArticleDO.builder()
-                .articleTitle(request.getArticleTitle())
-                .articleContent(request.getArticleContent())
-                .articleExcerpt(request.getArticleExcerpt())
+                .title(request.getTitle())
+                .content(request.getContent())
+                .excerpt(request.getExcerpt())
                 .coverImage(request.getCoverImage())
                 .categoryId(request.getCategoryId())
                 .status(request.getStatus())
@@ -201,9 +201,9 @@ public class ArticleServiceImpl implements ArticleService {
 
         ArticleDO article = ArticleDO.builder()
                 .id(request.getId())
-                .articleTitle(request.getArticleTitle())
-                .articleContent(request.getArticleContent())
-                .articleExcerpt(request.getArticleExcerpt())
+                .title(request.getTitle())
+                .content(request.getContent())
+                .excerpt(request.getExcerpt())
                 .coverImage(request.getCoverImage())
                 .categoryId(request.getCategoryId())
                 .status(request.getStatus())
@@ -264,8 +264,8 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleDTO articleVO = new ArticleDTO();
         BeanUtils.copyProperties(article, articleVO);
 
-        if (article.getArticleContent() != null) {
-            articleVO.setWordCount(calculateWordCount(article.getArticleContent()));
+        if (article.getContent() != null) {
+            articleVO.setWordCount(calculateWordCount(article.getContent()));
         }
 
         return articleVO;
@@ -376,7 +376,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
-        validateArticleCommonFields(request.getArticleTitle(), request.getArticleContent());
+        validateArticleCommonFields(request.getTitle(), request.getContent());
     }
 
     /**
@@ -386,17 +386,17 @@ public class ArticleServiceImpl implements ArticleService {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
-        validateArticleCommonFields(request.getArticleTitle(), request.getArticleContent());
+        validateArticleCommonFields(request.getTitle(), request.getContent());
     }
 
     /**
      * 校验文章公共字段
      */
-    private void validateArticleCommonFields(String articleTitle, String articleContent) {
-        if (StrUtil.isBlank(articleTitle)) {
+    private void validateArticleCommonFields(String title, String content) {
+        if (StrUtil.isBlank(title)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文章标题不能为空");
         }
-        if (StrUtil.isBlank(articleContent)) {
+        if (StrUtil.isBlank(content)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文章内容不能为空");
         }
     }
@@ -404,11 +404,11 @@ public class ArticleServiceImpl implements ArticleService {
     /**
      * 计算字数
      */
-    private Integer calculateWordCount(String articleContent) {
-        if (articleContent == null) {
+    private Integer calculateWordCount(String content) {
+        if (content == null) {
             return 0;
         }
-        return articleContent.length();
+        return content.length();
     }
 
     /**
@@ -458,7 +458,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         ArticleArchiveDTO archiveVO = new ArticleArchiveDTO();
         archiveVO.setId(article.getId());
-        archiveVO.setArticleTitle(article.getArticleTitle());
+        archiveVO.setTitle(article.getTitle());
         archiveVO.setCreateTime(article.getCreateTime());
         return archiveVO;
     }
