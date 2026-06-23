@@ -69,4 +69,9 @@ public class UserDTO implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+
+    /**
+     * 登录令牌（仅登录接口返回时使用）
+     */
+    private String token;
 }

@@ -1,6 +1,8 @@
 package com.grey.myblog.aop;
 
+import cn.hutool.core.util.StrUtil;
 import com.grey.myblog.annotation.AuthCheck;
+import com.grey.myblog.constant.UserConstant;
 import com.grey.myblog.exception.BusinessException;
 import com.grey.myblog.model.dataobject.UserDO;
 import com.grey.myblog.model.enums.ErrorCode;
@@ -51,6 +53,13 @@ public class AuthInterceptor {
         //获取到当前请求对象 ，再通过request获取当前用户
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request =((ServletRequestAttributes)requestAttributes).getRequest();
+
+        // 校验请求头是否携带 token
+        String token = request.getHeader(UserConstant.TOKEN_HEADER_KEY);
+        if (StrUtil.isBlank(token)) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
+        }
+
         //这个获取方法里如果当前角色为空会抛异常的，所以能出来必定拿到了
         UserDO loginUser = userService.getLoginUser(request);
         //对比当前用户的角色和权限需要的角色，校验权限是否足够

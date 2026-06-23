@@ -85,18 +85,16 @@
             <artifactId>minio</artifactId>
             <version>8.5.7</version>
         </dependency>
-
-    <!--    redis依赖如果引用，但是未链接redis会导致报错 TODO配置Redis打开    -->
         <!-- redis -->
-    <!--        <dependency>-->
-    <!--            <groupId>org.springframework.boot</groupId>-->
-    <!--            <artifactId>spring-boot-starter-data-redis</artifactId>-->
-    <!--        </dependency>-->
-        <!--redis-session  session 可以通过一键配置放入redis的插件-->
-    <!--        <dependency>-->
-    <!--            <groupId>org.springframework.session</groupId>-->
-    <!--            <artifactId>spring-session-data-redis</artifactId>-->
-    <!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- redis-session  session 可以通过一键配置放入redis的插件 -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
 
     </dependencies>
 

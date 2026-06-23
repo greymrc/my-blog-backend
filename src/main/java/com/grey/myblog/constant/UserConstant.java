@@ -8,7 +8,7 @@ package com.grey.myblog.constant;
 public interface UserConstant {
 
     /**
-     * 用户session信息存储的Key
+     * 用户session信息存储的Key（已废弃，改用 Token）
      */
     String USER_LOGIN_STATUS="user_login_status";
 
@@ -23,5 +23,19 @@ public interface UserConstant {
      */
     String ADMIN ="admin";
 
+    /**
+     * Token 存储的 Redis Key 前缀
+     */
+    String TOKEN_KEY_PREFIX = "token:";
+
+    /**
+     * Token 过期时间（30天，单位：秒）
+     */
+    long TOKEN_EXPIRE_TIME = 30 * 24 * 60 * 60L;
+
+    /**
+     * 请求头中 Token 的 key
+     */
+    String TOKEN_HEADER_KEY = "token";
 
 }

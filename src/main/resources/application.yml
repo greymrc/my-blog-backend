@@ -11,8 +11,7 @@ spring:
       max-file-size: 10MB
   # session 配置
   session:
-    # todo 取消注释开启分布式 session（须先配置 Redis）
-    # store-type: redis
+    store-type: redis
     # 30 天过期
     timeout: 2592000
   # mysql 配置
@@ -21,15 +20,14 @@ spring:
     url: jdbc:mysql://localhost:3306/blog
     username: root
     password: your_password
-
-# redis 配置
-# todo 需配置Redis   对齐spring：下
-#  redis:
-#    database: 1
-#    host: localhost
-#    port: 6379
-#    timeout: 5000
-#    password: 123456
+  # redis 配置
+  data:
+    redis:
+      database: 1
+      host: localhost
+      port: 6379
+      timeout: 5000
+      password: 123456
 
 server:
   port: 8894

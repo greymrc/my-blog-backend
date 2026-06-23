@@ -21,9 +21,13 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,9 +48,14 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserDAO userDAO;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
+        log.info("action=register, account={}, result=processing", userAccount);
+
         // 校验注册参数
         checkRegisterParams(userAccount, userPassword, checkPassword);
 
@@ -69,6 +78,7 @@ public class UserServiceImpl implements UserService {
         int result = userDAO.insert(registerUser);
         AssertUtil.isTrue(result > 0, ErrorCode.SYSTEM_ERROR, "用户注册失败");
 
+        log.info("action=register, account={}, userId={}, role={}, result=success", userAccount, registerUser.getId(), registerUser.getRole());
         return registerUser.getId();
     }
 
@@ -110,14 +120,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        log.info("action=login, account={}, result=processing", userAccount);
+
         // 参数校验
         if (StrUtil.hasBlank(userAccount, userPassword)) {
+            log.warn("action=login, account={}, reason=params_empty, result=fail", userAccount);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
         if (userAccount.length() < 4 || userAccount.length() > 20) {
+            log.warn("action=login, account={}, reason=account_length_invalid, result=fail", userAccount);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户长度应为4-20之间");
         }
         if (userPassword.length() < 8 || userPassword.length() > 20) {
+            log.warn("action=login, account={}, reason=password_length_invalid, result=fail", userAccount);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码长度应为8-20之间");
         }
 
@@ -127,15 +142,24 @@ public class UserServiceImpl implements UserService {
         // 查表对比
         UserDO loginUser = userDAO.selectByAccountAndPassword(userAccount, encryptPassword);
         if (loginUser == null) {
-            log.error("用户登录失败，账号或者密码错误");
+            log.warn("action=login, account={}, reason=account_or_password_error, result=fail", userAccount);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户名或密码错误");
         }
 
+        // 生成 token: admin-UUID (去掉横线)
+        String token = "admin-" + UUID.randomUUID().toString().replace("-", "");
+
         // 用户数据脱敏
         UserDTO loginUserVo = getLoginUserVo(loginUser);
-        // 用户登录态保存
-        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATUS, loginUserVo);
-        // 返回用户脱敏信息
+        // 设置 token
+        loginUserVo.setToken(token);
+
+        // 将用户信息存入 Redis，key 为 token
+        String redisKey = UserConstant.TOKEN_KEY_PREFIX + token;
+        stringRedisTemplate.opsForValue().set(redisKey, String.valueOf(loginUser.getId()),
+                UserConstant.TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
+
+        log.info("action=login, account={}, userId={}, role={}, result=success", userAccount, loginUser.getId(), loginUser.getRole());
         return loginUserVo;
     }
 
@@ -148,26 +172,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDO getLoginUser(HttpServletRequest request) {
-        // 从 session 获取用户对象
-        Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATUS);
-
-        if (userObj == null) {
+        // 从请求头获取 token
+        String token = request.getHeader(UserConstant.TOKEN_HEADER_KEY);
+        if (StrUtil.isBlank(token)) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
         }
 
-        if (!(userObj instanceof UserDTO)) {
+        // 从 Redis 获取用户 ID
+        String redisKey = UserConstant.TOKEN_KEY_PREFIX + token;
+        String userIdStr = stringRedisTemplate.opsForValue().get(redisKey);
+        if (StrUtil.isBlank(userIdStr)) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录或登录已过期");
+        }
+
+        Long userId;
+        try {
+            userId = Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录状态异常，请重新登录");
         }
 
-        UserDTO loginUser = (UserDTO) userObj;
-
-        if (loginUser.getId() == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "登录信息不完整");
-        }
-
         // 查询用户信息，拿到最新的用户对象
-        UserDO latestUser = userDAO.selectById(loginUser.getId());
-
+        UserDO latestUser = userDAO.selectById(userId);
         if (latestUser == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户不存在或已被删除");
         }
@@ -177,11 +203,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATUS);
-        if (userObj == null) {
+        // 从请求头获取 token
+        String token = request.getHeader(UserConstant.TOKEN_HEADER_KEY);
+        if (StrUtil.isBlank(token)) {
+            log.warn("action=logout, reason=not_login, result=fail");
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
         }
-        request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATUS);
+
+        // 从 Redis 删除 token
+        String redisKey = UserConstant.TOKEN_KEY_PREFIX + token;
+        stringRedisTemplate.delete(redisKey);
+
+        log.info("action=logout, result=success");
         return true;
     }
 
@@ -189,11 +222,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean userAdd(UserAddRequest userAddRequest) {
         String userAccount = userAddRequest.getAccount();
+        log.info("action=add_user, account={}, result=processing", userAccount);
+
         String userPassword = userAddRequest.getPassword();
         // 校验用户账号密码合规
         checkUserAccountPassword(userAccount, userPassword);
         // 校验账号唯一
         if (existsByAccount(userAccount)) {
+            log.warn("action=add_user, account={}, reason=account_exists, result=fail", userAccount);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户已存在");
         }
         // 转换为User类
@@ -211,25 +247,34 @@ public class UserServiceImpl implements UserService {
         try {
             int result = userDAO.insert(user);
             if (result <= 0) {
+                log.error("action=add_user, account={}, reason=db_insert_fail, result=fail", userAccount);
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "用户添加失败");
             }
         } catch (org.springframework.dao.DuplicateKeyException e) {
+            log.warn("action=add_user, account={}, reason=account_duplicate, result=fail", userAccount);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户已存在");
         }
 
+        log.info("action=add_user, account={}, userId={}, role={}, result=success", userAccount, user.getId(), user.getRole());
         return true;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateUser(UserUpdateRequest userUpdateRequest, UserDO loginUser) {
+        Long targetUserId = userUpdateRequest.getId();
+        log.info("action=update_user, operatorId={}, operatorAccount={}, targetUserId={}, result=processing",
+                loginUser.getId(), loginUser.getAccount(), targetUserId);
+
         // 校验参数
-        if (userUpdateRequest.getId() <= 0L) {
+        if (targetUserId <= 0L) {
+            log.warn("action=update_user, targetUserId={}, reason=id_invalid, result=fail", targetUserId);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "id非法");
         }
         String userAccount = userUpdateRequest.getAccount();
         if (!StrUtil.hasBlank(userAccount)) {
             if (userAccount.length() < 4 || userAccount.length() > 20) {
+                log.warn("action=update_user, account={}, reason=account_length_invalid, result=fail", userAccount);
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户长度应为4-20之间");
             }
         }
@@ -241,11 +286,11 @@ public class UserServiceImpl implements UserService {
         ValidationUtils.validateMobile(userMobile);
         // 转换对象
         UserDO user = UserDO.builder()
-                .id(userUpdateRequest.getId())
+                .id(targetUserId)
                 .account(userUpdateRequest.getAccount())
                 .nickname(userUpdateRequest.getNickname())
-                .email(userUpdateRequest.getEmail())
-                .mobile(userUpdateRequest.getMobile())
+                .email(userEmail)
+                .mobile(userMobile)
                 .avatar(userUpdateRequest.getAvatar())
                 .profile(userUpdateRequest.getProfile())
                 .role(userUpdateRequest.getRole())
@@ -254,8 +299,12 @@ public class UserServiceImpl implements UserService {
         // 更新
         int result = userDAO.updateById(user);
         if (result <= 0) {
+            log.error("action=update_user, targetUserId={}, reason=db_update_fail, result=fail", targetUserId);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "用户更新失败");
         }
+
+        log.info("action=update_user, targetUserId={}, nickname={}, email={}, role={}, result=success",
+                targetUserId, userUpdateRequest.getNickname(), userEmail, userUpdateRequest.getRole());
         return true;
     }
 
