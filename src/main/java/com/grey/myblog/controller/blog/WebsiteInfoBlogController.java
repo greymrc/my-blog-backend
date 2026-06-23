@@ -1,4 +1,4 @@
-package com.grey.myblog.controller.app;
+package com.grey.myblog.controller.blog;
 
 import com.grey.myblog.common.Result;
 import com.grey.myblog.model.dto.WebsiteInfoDTO;
@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 网站信息接口（用户端）
+ * 网站信息接口（博客端）
  *
  * @author grey
  */
 @RestController
-@RequestMapping("/app/website-info")
-public class WebsiteInfoAppController {
+@RequestMapping("/blog/website-info")
+public class WebsiteInfoBlogController {
 
     @Resource
     private WebsiteInfoService websiteInfoService;

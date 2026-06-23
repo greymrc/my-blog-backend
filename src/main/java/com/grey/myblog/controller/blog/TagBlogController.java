@@ -1,4 +1,4 @@
-package com.grey.myblog.controller.app;
+package com.grey.myblog.controller.blog;
 
 import com.grey.myblog.common.Result;
 import com.grey.myblog.model.dto.TagDTO;
@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 标签接口（用户端）
+ * 标签接口（博客端）
  *
  * @author grey
  */
 @RestController
-@RequestMapping("/app/tag")
-public class TagAppController {
+@RequestMapping("/blog/tag")
+public class TagBlogController {
 
     @Resource
     private TagService tagService;

@@ -1,4 +1,4 @@
-package com.grey.myblog.controller.app;
+package com.grey.myblog.controller.blog;
 
 import com.grey.myblog.common.Result;
 import com.grey.myblog.model.dto.CategoryDTO;
@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 分类接口（用户端）
+ * 分类接口（博客端）
  *
  * @author grey
  */
 @RestController
-@RequestMapping("/app/category")
-public class CategoryAppController {
+@RequestMapping("/blog/category")
+public class CategoryBlogController {
 
     @Resource
     private CategoryService categoryService;

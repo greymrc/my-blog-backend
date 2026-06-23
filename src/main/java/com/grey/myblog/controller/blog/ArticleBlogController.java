@@ -1,4 +1,4 @@
-package com.grey.myblog.controller.app;
+package com.grey.myblog.controller.blog;
 
 import com.grey.myblog.common.Result;
 import com.grey.myblog.model.PageResult;
@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 文章接口（用户端）
+ * 文章接口（博客端）
  *
  * @author grey
  */
 @RestController
-@RequestMapping("/app/article")
-public class ArticleAppController {
+@RequestMapping("/blog/article")
+public class ArticleBlogController {
 
     @Resource
     private ArticleService articleService;
